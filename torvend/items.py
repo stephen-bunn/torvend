@@ -9,22 +9,31 @@ import enum
 import scrapy
 
 
-class TorrentCategory(enum.IntEnum):
+class TorrentCategory(enum.Enum):
 
-    Unknown = 0x0
-    Audio = 0x1
-    Video = 0x2
-    Image = 0x3
-    Application = 0x4
+    Unknown = 'unknown'
+    Audio = 'audio'
+    Video = 'video'
+    Image = 'image'
+    Application = 'application'
+    Game = 'game'
+    Book = 'book'
+    Porn = 'porn'
 
 
 class Torrent(scrapy.Item):
+
+    def __repr__(self):
+        return (
+            '<{self.__class__.__name__} [{self[categories][0]}] '
+            '({self[source]}) "{self[name]}">'
+        ).format(**locals())
 
     source = scrapy.Field()
     name = scrapy.Field()
     size = scrapy.Field(serializer=int)
     magnet = scrapy.Field()
-    categories = scrapy.Field()
+    categories = scrapy.Field(serializer=lambda x: [_.value for _ in x])
     seeders = scrapy.Field(serializer=int)
     leechers = scrapy.Field(serializer=int)
     uploaded = scrapy.Field(serializer=str)
