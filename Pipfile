@@ -9,6 +9,15 @@ name = "pypi"
 
 scrapy = "*"
 "beautifulsoup4" = "*"
+lxml = "*"
+requests = "*"
+humanfriendly = "*"
+dateparser = "*"
+"pypiwin32" = "*"
+furl = "*"
+blinker = "*"
+pygogo = "*"
+twisted = "*"
 
 
 [dev-packages]
