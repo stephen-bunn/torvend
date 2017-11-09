@@ -13,6 +13,8 @@ import furl
 
 
 class ThePirateBaySpider(BaseSpider):
+    """ The spider for thepiratebay.org.
+    """
 
     name = 'thepiratebay'
     allowed_domains = [
@@ -27,7 +29,7 @@ class ThePirateBaySpider(BaseSpider):
         '200': items.TorrentCategory.Video,
         '300': items.TorrentCategory.Application,
         '400': items.TorrentCategory.Game,
-        '500': items.TorrentCategory.Porn,
+        '500': items.TorrentCategory.Adult,
         '503': items.TorrentCategory.Image,
         '600': items.TorrentCategory.Unknown,
         '601': items.TorrentCategory.Book,
@@ -36,14 +38,37 @@ class ThePirateBaySpider(BaseSpider):
 
     @property
     def paging_results(self):
+        """ Required property for paging results.
+
+        :returns: The number of results per queried page
+        :rtype: int
+        """
+
         return self._paging_results
 
     @property
     def query_url(self):
+        """ Required property for query url template.
+
+        .. note:: Usually requires the existence of the ``query`` and ``page``
+            format parameters
+
+        :returns: The query format string
+        :rtype: str
+        """
+
         return self._query_url
 
     def parse(self, response):
-        soup = self.get_soup(response.text, is_content=True)
+        """ Required first level page parser.
+
+        :param request: The request instance from ``start_requests``
+        :type request: scrapy.Request
+        :returns: Yields torrent items
+        :rtype: list[items.Torrent]
+        """
+
+        soup = self.get_soup(response.text)
         try:
             results = soup\
                 .find('table', {'id': 'searchResult'})\
@@ -52,7 +77,7 @@ class ThePirateBaySpider(BaseSpider):
             return
 
         for result in results:
-            torrent = items.Torrent()
+            torrent = items.Torrent(spider=self.name)
             torrent['categories'] = [
                 self._category_map.get(
                     furl.furl(category.attrs['href']).path.segments[-1],

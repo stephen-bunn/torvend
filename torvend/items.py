@@ -10,6 +10,8 @@ import scrapy
 
 
 class TorrentCategory(enum.Enum):
+    """ A enumeration of generic torrent categorizations.
+    """
 
     Unknown = 'unknown'
     Audio = 'audio'
@@ -18,17 +20,37 @@ class TorrentCategory(enum.Enum):
     Application = 'application'
     Game = 'game'
     Book = 'book'
-    Porn = 'porn'
+    Adult = 'adult'
 
 
 class Torrent(scrapy.Item):
+    """ A torrent item.
+
+    :ivar spider: The spider name which discovered the torrent
+    :ivar source: The source url of the torrent
+    :ivar name: The name of the torrent
+    :ivar size: The size in bytes of the torrent
+    :ivar magnet: The magnet link of the torrent
+    :ivar categories: A list of applicable ``TorrentCategory``
+    :ivar seeders: The number of seeders
+    :ivar leechers: The number of leechers
+    :ivar uploaded: The datetime the torrent was uploaded
+    :ivar uploader: The name of the uploader
+    """
 
     def __repr__(self):
+        """ Returns a string representation of an object instance.
+
+        :returns: A string representation of an object instance
+        :rtype: str
+        """
+
         return (
             '<{self.__class__.__name__} [{self[categories][0]}] '
-            '({self[source]}) "{self[name]}">'
+            '({self[spider]}) "{self[name]}">'
         ).format(**locals())
 
+    spider = scrapy.Field()
     source = scrapy.Field()
     name = scrapy.Field()
     size = scrapy.Field(serializer=int)

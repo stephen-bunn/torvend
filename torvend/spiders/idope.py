@@ -15,6 +15,8 @@ import scrapy
 
 
 class IDopeSpider(BaseSpider):
+    """ The spider for idope.se.
+    """
 
     name = 'idope'
     allowed_domains = [
@@ -31,7 +33,7 @@ class IDopeSpider(BaseSpider):
         'anime': items.TorrentCategory.Video,
         'apps': items.TorrentCategory.Application,
         'books': items.TorrentCategory.Book,
-        'xxx': items.TorrentCategory.Porn,
+        'xxx': items.TorrentCategory.Adult,
         'images': items.TorrentCategory.Image,
         'games': items.TorrentCategory.Game,
         'others': items.TorrentCategory.Unknown,
@@ -39,13 +41,34 @@ class IDopeSpider(BaseSpider):
 
     @property
     def paging_results(self):
+        """ Required property for paging results.
+
+        :returns: The number of results per queried page
+        :rtype: int
+        """
+
         return self._paging_results
 
     @property
     def query_url(self):
+        """ Required property for query url template.
+
+        .. note:: Usually requires the existence of the ``query`` and ``page``
+            format parameters
+
+        :returns: The query format string
+        :rtype: str
+        """
+
         return self._query_url
 
     def start_requests(self):
+        """ The scrapy request starters.
+
+        :returns: Yeilds requests for a sequence of pages
+        :rtype: list[scrapy.Request]
+        """
+
         for page_index in range(1, math.ceil(
             (self.results / self.paging_results)
         ) + 1):
@@ -58,12 +81,21 @@ class IDopeSpider(BaseSpider):
             )
 
     def parse(self, response):
-        soup = self.get_soup(response.text, is_content=True)
+        """ Required first level page parser.
+
+        :param request: The request instance from ``start_requests``
+        :type request: scrapy.Request
+        :returns: Yields torrent items
+        :rtype: list[items.Torrent]
+        """
+
+        soup = self.get_soup(response.text)
 
         for result in soup\
                 .find('div', {'id': 'div2child'})\
                 .find_all('div', {'class': 'resultdiv'}):
-            torrent = items.Torrent()
+            torrent = items.Torrent(spider=self.name)
+
             torrent['name'] = result.find(
                 'div', {'class': 'resultdivtopname'}
             ).contents[0].strip()

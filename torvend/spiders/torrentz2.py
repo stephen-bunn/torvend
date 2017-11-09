@@ -11,6 +11,8 @@ import furl
 
 
 class Torrentz2Spider(BaseSpider):
+    """ The spider for torrentz2.eu.
+    """
 
     name = 'torrentz2'
     allowed_domains = [
@@ -24,21 +26,44 @@ class Torrentz2Spider(BaseSpider):
         'video': items.TorrentCategory.Video,
         'application': items.TorrentCategory.Application,
         'ebook': items.TorrentCategory.Book,
-        'adult': items.TorrentCategory.Porn,
+        'adult': items.TorrentCategory.Adult,
         'images': items.TorrentCategory.Image,
         'game': items.TorrentCategory.Game,
     }
 
     @property
     def paging_results(self):
+        """ Required property for paging results.
+
+        :returns: The number of results per queried page
+        :rtype: int
+        """
+
         return self._paging_results
 
     @property
     def query_url(self):
+        """ Required property for query url template.
+
+        .. note:: Usually requires the existence of the ``query`` and ``page``
+            format parameters
+
+        :returns: The query format string
+        :rtype: str
+        """
+
         return self._query_url
 
     def parse(self, response):
-        soup = self.get_soup(response.text, is_content=True)
+        """ Required first level page parser.
+
+        :param request: The request instance from ``start_requests``
+        :type request: scrapy.Request
+        :returns: Yields torrent items
+        :rtype: list[items.Torrent]
+        """
+
+        soup = self.get_soup(response.text)
         try:
             results = soup\
                 .find('div', {'class': 'results'})\
@@ -47,7 +72,7 @@ class Torrentz2Spider(BaseSpider):
             return
 
         for result in results:
-            torrent = items.Torrent()
+            torrent = items.Torrent(spider=self.name)
 
             result_links = result.find('a')
             torrent['name'] = result_links.contents[0].strip()
@@ -59,7 +84,10 @@ class Torrentz2Spider(BaseSpider):
                 'magnet:?xt=urn:btih:{magnet_hash}&dn'
             ).format(**locals())
 
-            source_url = furl.furl(self.query_url)
+            source_url = furl.furl(self.query_url.format(
+                query=self.query, page=0,
+                **locals()
+            ))
             source_url.path = magnet_hash
             source_url.args = {}
             torrent['source'] = source_url.url

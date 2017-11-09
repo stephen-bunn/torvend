@@ -8,27 +8,49 @@ import inspect
 
 from . import (const, meta, spiders,)
 
-import blinker
 import scrapy.crawler
 import scrapy.signals
 import twisted.internet
 
 
 class Client(meta.Loggable):
-    on_torrent = blinker.Signal()
+    """ The client for discovering torrents.
+    """
 
     def __init__(self, settings={}, ignored=[], verbose=False):
+        """ Initializes the client.
+
+        :param settings: Any additional settings for the scrapy crawler
+        :type settings: dict[str,....]
+        :param ignored: Any ignored spiders
+        :type ignored: list[torvend.spiders._common.BaseSpider]
+        :param bool verbose: A flag to indicate if verbose logging is enabled
+        """
+
         (self.settings, self.ignored, self.verbose,) = \
             (settings, ignored, verbose,)
 
     @property
     def verbose(self):
+        """ Indicates if verbose logging is enabled.
+
+        :getter: Returns True if verbose logging is enabled
+        :setter: Sets the verbose flag
+        :rtype: bool
+        """
+
         if not hasattr(self, '_verbose'):
             self._verbose = False
         return self._verbose
 
     @verbose.setter
     def verbose(self, verbose):
+        """ Sets the verbose flag.
+
+        :param bool verbose: The new verbose flag
+        :rtype: None
+        """
+
         assert isinstance(verbose, bool), (
             "verbose must be a boolean, received '{verbose}'"
         ).format(**locals())
@@ -36,13 +58,13 @@ class Client(meta.Loggable):
         if not self._verbose:
             const.verbose = False
 
-    def _handle_torrent(self, item, spider):
-        self.log.info((
-            'discovered torrent `{item}` from spider `{spider}`'
-        ).format(**locals()))
-        self.on_torrent.send(item, spider=spider)
-
     def get_spiders(self):
+        """ Returns a list of spider classes.
+
+        :returns: A list of spider classes
+        :rtype: list[torvend.spiders._common.BaseSpider]
+        """
+
         return [
             spider_class
             for (_, spider_class,) in inspect.getmembers(
@@ -51,15 +73,27 @@ class Client(meta.Loggable):
             )
         ]
 
-    def search(self, query, results=30):
-        crawl_runner = scrapy.crawler.CrawlerRunner({
+    def search(self, query, callback, results=30):
+        """ Starts the search process for a given query.
+
+        .. note:: The callback method must accept at least a positional
+            argument named ``item``.
+            This is the discovered torrent item.
+
+        :param str query: The query text to search with
+        :param callable callback: A callback which receives torrent items
+        :param int results: The minimum number of results for each spider to
+            return
+        """
+
+        crawl_runner = scrapy.crawler.CrawlerRunner(dict(**self.settings, **{
             'BOT_NAME': const.module_name,
             'USER_AGENT': (
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:39.0) '
                 'Gecko/20100101 Firefox/39.0'
             ),
             'LOG_ENABLED': self.verbose,
-        })
+        }))
 
         for spider_class in self.get_spiders():
             if spider_class not in self.ignored:
@@ -75,10 +109,10 @@ class Client(meta.Loggable):
         for crawler in crawl_runner.crawlers:
             self.log.debug((
                 'connecting item signal for spider `{crawler}` to '
-                '`{self._handle_torrent}`'
+                '`{callback}`'
             ).format(**locals()))
             crawler.signals.connect(
-                self._handle_torrent,
+                callback,
                 scrapy.signals.item_scraped
             )
 
