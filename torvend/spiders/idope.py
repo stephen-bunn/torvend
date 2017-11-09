@@ -114,11 +114,13 @@ class IDopeSpider(BaseSpider):
                 items.TorrentCategory.Unknown
             ]
             torrent['source'] = source_url.url
-            torrent['magnet'] = (
-                'magnet:?xt=urn:btih:{0}&dn'
-            ).format(result.find(
+            info_hash = result.find(
                 'div', {'class': 'hideinfohash'}
-            ).contents[0].strip())
+            ).contents[0].strip()
+            torrent['hash'] = info_hash
+            torrent['magnet'] = (
+                'magnet:?xt=urn:btih:{info_hash}&dn'
+            ).format(**locals())
 
             torrent['seeders'] = int(result.find(
                 'div', {'class': 'resultdivbottonseed'}

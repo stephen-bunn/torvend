@@ -30,6 +30,7 @@ class Torrent(scrapy.Item):
     :ivar source: The source url of the torrent
     :ivar name: The name of the torrent
     :ivar size: The size in bytes of the torrent
+    :ivar hash: The infohash of the torrent
     :ivar magnet: The magnet link of the torrent
     :ivar categories: A list of applicable ``TorrentCategory``
     :ivar seeders: The number of seeders
@@ -54,6 +55,7 @@ class Torrent(scrapy.Item):
     source = scrapy.Field()
     name = scrapy.Field()
     size = scrapy.Field(serializer=int)
+    hash = scrapy.Field()
     magnet = scrapy.Field()
     categories = scrapy.Field(serializer=lambda x: [_.value for _ in x])
     seeders = scrapy.Field(serializer=int)

@@ -55,8 +55,7 @@ class Client(meta.Loggable):
             "verbose must be a boolean, received '{verbose}'"
         ).format(**locals())
         self._verbose = verbose
-        if not self._verbose:
-            const.verbose = False
+        const.verbose = verbose
 
     def get_spiders(self):
         """ Returns a list of spider classes.

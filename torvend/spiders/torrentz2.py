@@ -77,18 +77,19 @@ class Torrentz2Spider(BaseSpider):
             result_links = result.find('a')
             torrent['name'] = result_links.contents[0].strip()
 
-            magnet_hash = furl.furl(
+            info_hash = furl.furl(
                 result_links.attrs['href']
             ).path.segments[-1]
+            torrent['hash'] = info_hash
             torrent['magnet'] = (
-                'magnet:?xt=urn:btih:{magnet_hash}&dn'
+                'magnet:?xt=urn:btih:{info_hash}&dn'
             ).format(**locals())
 
             source_url = furl.furl(self.query_url.format(
                 query=self.query, page=0,
                 **locals()
             ))
-            source_url.path = magnet_hash
+            source_url.path = info_hash
             source_url.args = {}
             torrent['source'] = source_url.url
 
