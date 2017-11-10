@@ -17,7 +17,7 @@ class Client(meta.Loggable):
     """ The client for discovering torrents.
     """
 
-    def __init__(self, settings={}, ignored=[], verbose=False):
+    def __init__(self, settings={}, ignored=[], allowed=[], verbose=False):
         """ Initializes the client.
 
         :param settings: Any additional settings for the scrapy crawler
@@ -27,8 +27,14 @@ class Client(meta.Loggable):
         :param bool verbose: A flag to indicate if verbose logging is enabled
         """
 
-        (self.settings, self.ignored, self.verbose,) = \
-            (settings, ignored, verbose,)
+        (self.settings, self.ignored, self.allowed, self.verbose,) = \
+            (settings, ignored, allowed, verbose,)
+
+        if len(self.ignored) > 0 and len(self.allowed) > 0:
+            raise ValueError((
+                "usage of both 'ignored' and 'allowed' in client '{self}' "
+                "is not supported"
+            ).format(**locals()))
 
     @property
     def verbose(self):
@@ -64,13 +70,17 @@ class Client(meta.Loggable):
         :rtype: list[torvend.spiders._common.BaseSpider]
         """
 
-        return [
-            spider_class
-            for (_, spider_class,) in inspect.getmembers(
-                spiders,
-                predicate=inspect.isclass
-            )
-        ]
+        compare_allowed = len(self.allowed) > 0
+        for (_, spider_class,) in inspect.getmembers(
+            spiders,
+            predicate=inspect.isclass
+        ):
+            if compare_allowed:
+                if spider_class in self.allowed:
+                    yield spider_class
+            else:
+                if spider_class not in self.ignored:
+                    yield spider_class
 
     def search(self, query, callback, results=30):
         """ Starts the search process for a given query.
@@ -95,15 +105,14 @@ class Client(meta.Loggable):
         }))
 
         for spider_class in self.get_spiders():
-            if spider_class not in self.ignored:
-                self.log.debug((
-                    'registering spider `{spider_class.__name__}` to '
-                    'crawl runner `{crawl_runner}`'
-                ).format(**locals()))
-                crawl_runner.crawl(
-                    spider_class,
-                    query=query, results=results
-                )
+            self.log.debug((
+                'registering spider `{spider_class.__name__}` to '
+                'crawl runner `{crawl_runner}`'
+            ).format(**locals()))
+            crawl_runner.crawl(
+                spider_class,
+                query=query, results=results
+            )
 
         for crawler in crawl_runner.crawlers:
             self.log.debug((
