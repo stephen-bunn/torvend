@@ -19,7 +19,16 @@
 
 import os
 import sys
+
 import sphinx_rtd_theme
+
+
+PACKAGE = {}
+with open(os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'torvend/__version__.py'
+), 'r') as fp:
+    exec(fp.read(), PACKAGE)
 
 sys.path.insert(0, os.path.abspath('../../'))
 
