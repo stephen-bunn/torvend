@@ -4,13 +4,14 @@
 # Copyright (c) 2017 Stephen Bunn (stephen@bunn.io)
 # MIT License <https://opensource.org/licenses/MIT>
 
-import re
 import abc
 import math
+import socket
 
 from .. import (meta,)
 
 import bs4
+import furl
 import scrapy
 import requests
 import dateparser
@@ -35,25 +36,51 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
         super(BaseSpider, self).__init__(*args, **kwargs)
         (self.query, self.results,) = (query, results,)
 
+    @property
+    def active_domains(self):
+        """ A list of active domains.
+
+        :getter: Returns a list of active domains
+        :setter: Does not allow setting
+        :rtype: list[str]
+        """
+
+        if not hasattr(self, '_active_domains'):
+            self._active_domains = []
+            for domain in self.allowed_domains:
+                try:
+                    socket.gethostbyname(domain)
+                    self._active_domains.append(domain)
+                except (socket.gaierror,):
+                    pass
+        return self._active_domains
+
+    @abc.abstractproperty
+    def query_scheme(self):
+        """ Required property for query scheme.
+
+        :returns: The scheme the query needs
+        :rtype: str
+        """
+
+        raise NotImplementedError()
+
+    @abc.abstractproperty
+    def query_path(self):
+        """ Required property for the query path.
+
+        :returns: The path the query needs
+        :rtype: str
+        """
+
+        raise NotImplementedError()
+
     @abc.abstractproperty
     def paging_results(self):
         """ Required property for paging results.
 
         :returns: The number of results per queried page
         :rtype: int
-        """
-
-        raise NotImplementedError()
-
-    @abc.abstractproperty
-    def query_url(self):
-        """ Required property for query url template.
-
-        .. note:: Usually requires the existence of the ``query`` and ``page``
-            format parameters
-
-        :returns: The query format string
-        :rtype: str
         """
 
         raise NotImplementedError()
@@ -69,12 +96,27 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
             (self.results / self.paging_results)
         )):
             yield scrapy.Request(
-                self.query_url.format(
-                    query=self.query, page=page_index,
-                    **locals()
-                ),
+                self.get_url(self.query, page_index),
                 callback=self.parse
             )
+
+    def get_url(self, query, page, **kwargs):
+        """ Gets the query url.
+
+        :param str query: The query text
+        :param int page: The result page index to query for
+        :param kwargs: Any additional named arguments
+        :type kwargs: dict[str,....]
+        :returns: The property url for making a query
+        :rtype: str
+        """
+
+        return furl.furl().set(
+            scheme=self.query_scheme,
+            host=self.active_domains[0]
+        ).join(self.query_path.format(
+            query=query, page=page
+        )).url
 
     def get_source(self, url):
         """ Gets the source from a given url.

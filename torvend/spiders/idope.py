@@ -4,7 +4,6 @@
 # Copyright (c) 2017 Stephen Bunn (stephen@bunn.io)
 # MIT License <https://opensource.org/licenses/MIT>
 
-import re
 import math
 
 from .. import (items,)
@@ -24,9 +23,8 @@ class IDopeSpider(BaseSpider):
     ]
 
     _paging_results = 10
-    _query_url = (
-        'https://{self.allowed_domains[0]}/torrent-list/{query}/?p={page}'
-    )
+    _query_scheme = 'https'
+    _query_path = '/torrent-list/{query}/?p={page}'
     _category_map = {
         'music': items.TorrentCategory.Audio,
         'tv': items.TorrentCategory.Video,
@@ -50,17 +48,24 @@ class IDopeSpider(BaseSpider):
         return self._paging_results
 
     @property
-    def query_url(self):
-        """ Required property for query url template.
+    def query_scheme(self):
+        """ Required property for query scheme.
 
-        .. note:: Usually requires the existence of the ``query`` and ``page``
-            format parameters
-
-        :returns: The query format string
+        :returns: The scheme the query needs
         :rtype: str
         """
 
-        return self._query_url
+        return self._query_scheme
+
+    @property
+    def query_path(self):
+        """ Required property for the query path.
+
+        :returns: The path the query needs
+        :rtype: str
+        """
+
+        return self._query_path
 
     def start_requests(self):
         """ The scrapy request starters.
@@ -73,10 +78,7 @@ class IDopeSpider(BaseSpider):
             (self.results / self.paging_results)
         ) + 1):
             yield scrapy.Request(
-                self.query_url.format(
-                    query=self.query, page=page_index,
-                    **locals()
-                ),
+                self.get_url(self.query, page_index),
                 callback=self.parse
             )
 
@@ -100,11 +102,10 @@ class IDopeSpider(BaseSpider):
                 'div', {'class': 'resultdivtopname'}
             ).contents[0].strip()
 
-            source_url = furl.furl(self.query_url.format(
-                query=self.query, page=0,
-                **locals()
-            ))
-            source_url.path = result.find('a').attrs['href']
+            torrent['source'] = furl.furl(response.url).set(
+                path=result.find('a').attrs['href'],
+                args={}
+            ).url
             torrent['categories'] = [
                 self._category_map.get(
                     result.find(
@@ -113,7 +114,6 @@ class IDopeSpider(BaseSpider):
                 ),
                 items.TorrentCategory.Unknown
             ]
-            torrent['source'] = source_url.url
             info_hash = result.find(
                 'div', {'class': 'hideinfohash'}
             ).contents[0].strip()

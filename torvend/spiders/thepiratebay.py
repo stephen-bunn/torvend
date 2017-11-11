@@ -23,7 +23,8 @@ class ThePirateBaySpider(BaseSpider):
     ]
 
     _paging_results = 30
-    _query_url = 'https://{self.allowed_domains[0]}/search/{query}/{page}'
+    _query_scheme = 'https'
+    _query_path = '/search/{query}/{page}'
     _category_map = {
         '100': items.TorrentCategory.Audio,
         '200': items.TorrentCategory.Video,
@@ -47,17 +48,24 @@ class ThePirateBaySpider(BaseSpider):
         return self._paging_results
 
     @property
-    def query_url(self):
-        """ Required property for query url template.
+    def query_scheme(self):
+        """ Required property for query scheme.
 
-        .. note:: Usually requires the existence of the ``query`` and ``page``
-            format parameters
-
-        :returns: The query format string
+        :returns: The scheme the query needs
         :rtype: str
         """
 
-        return self._query_url
+        return self._query_scheme
+
+    @property
+    def query_path(self):
+        """ Required property for the query path.
+
+        :returns: The path the query needs
+        :rtype: str
+        """
+
+        return self._query_path
 
     def parse(self, response):
         """ Required first level page parser.
@@ -100,13 +108,9 @@ class ThePirateBaySpider(BaseSpider):
 
             result_links = result.find('a', {'class': 'detLink'})
             if 'href' in result_links.attrs:
-                source_url = furl.furl(self._query_url.format(
-                    query=self.query, page=0,
-                    **locals()
-                ))
-                source_url.path = result_links.attrs['href']
-                source_url.args = {}
-                torrent['source'] = source_url.url
+                torrent['source'] = furl.furl(response.url).set(
+                    path=result_links.attrs['href'], args={}
+                ).url
 
             torrent['name'] = result_links.contents[0].strip()
 

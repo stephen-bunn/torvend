@@ -95,14 +95,14 @@ class Client(meta.Loggable):
             return
         """
 
-        crawl_runner = scrapy.crawler.CrawlerRunner(dict(**self.settings, **{
+        crawl_runner = scrapy.crawler.CrawlerRunner({
             'BOT_NAME': const.module_name,
             'USER_AGENT': (
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:39.0) '
                 'Gecko/20100101 Firefox/39.0'
             ),
             'LOG_ENABLED': self.verbose,
-        }))
+        })
 
         for spider_class in self.get_spiders():
             self.log.debug((

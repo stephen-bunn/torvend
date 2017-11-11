@@ -20,7 +20,8 @@ class Torrentz2Spider(BaseSpider):
     ]
 
     _paging_results = 50
-    _query_url = 'https://{self.allowed_domains[0]}/search/?f={query}&p={page}'
+    _query_scheme = 'https'
+    _query_path = '/search/?f={query}&p={page}'
     _category_map = {
         'audio': items.TorrentCategory.Audio,
         'video': items.TorrentCategory.Video,
@@ -42,17 +43,24 @@ class Torrentz2Spider(BaseSpider):
         return self._paging_results
 
     @property
-    def query_url(self):
-        """ Required property for query url template.
+    def query_scheme(self):
+        """ Required property for query scheme.
 
-        .. note:: Usually requires the existence of the ``query`` and ``page``
-            format parameters
-
-        :returns: The query format string
+        :returns: The scheme the query needs
         :rtype: str
         """
 
-        return self._query_url
+        return self._query_scheme
+
+    @property
+    def query_path(self):
+        """ Required property for the query path.
+
+        :returns: The path the query needs
+        :rtype: str
+        """
+
+        return self._query_path
 
     def parse(self, response):
         """ Required first level page parser.
@@ -85,13 +93,9 @@ class Torrentz2Spider(BaseSpider):
                 'magnet:?xt=urn:btih:{info_hash}&dn'
             ).format(**locals())
 
-            source_url = furl.furl(self.query_url.format(
-                query=self.query, page=0,
-                **locals()
-            ))
-            source_url.path = info_hash
-            source_url.args = {}
-            torrent['source'] = source_url.url
+            torrent['source'] = furl.furl(response.url).set(
+                path=info_hash, args={}
+            ).url
 
             result_desc = result.find('dt')
             if len(result_desc.contents[-1]) > 1 and \
