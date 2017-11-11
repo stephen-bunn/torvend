@@ -4,8 +4,6 @@
 # Copyright (c) 2017 Stephen Bunn (stephen@bunn.io)
 # MIT License <https://opensource.org/licenses/MIT>
 
-import math
-
 from .. import (items,)
 from ._common import (BaseSpider,)
 
