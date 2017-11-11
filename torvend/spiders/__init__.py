@@ -7,3 +7,4 @@
 from .idope import (IDopeSpider,)
 from .torrentz2 import (Torrentz2Spider,)
 from .thepiratebay import (ThePirateBaySpider,)
+from .onethreethreesevenx import (OneThreeThreeSevenXSpider,)
