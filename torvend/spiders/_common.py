@@ -76,6 +76,16 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractproperty
+    def paging_index(self):
+        """ Required property for paging indexing.
+
+        :returns: The starting index of pages
+        :rtype: int
+        """
+
+        raise NotImplementedError()
+
+    @abc.abstractproperty
     def paging_results(self):
         """ Required property for paging results.
 
@@ -92,9 +102,9 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
         :rtype: list[scrapy.Request]
         """
 
-        for page_index in range(math.ceil(
+        for page_index in range(self.paging_index, math.ceil(
             (self.results / self.paging_results)
-        )):
+        ) + self.paging_index):
             yield scrapy.Request(
                 self.get_url(self.query, page_index),
                 callback=self.parse

@@ -10,7 +10,6 @@ from .. import (items,)
 from ._common import (BaseSpider,)
 
 import furl
-import scrapy
 
 
 class IDopeSpider(BaseSpider):
@@ -22,9 +21,6 @@ class IDopeSpider(BaseSpider):
         'idope.se',
     ]
 
-    _paging_results = 10
-    _query_scheme = 'https'
-    _query_path = '/torrent-list/{query}/?p={page}'
     _category_map = {
         'music': items.TorrentCategory.Audio,
         'tv': items.TorrentCategory.Video,
@@ -38,6 +34,16 @@ class IDopeSpider(BaseSpider):
     }
 
     @property
+    def paging_index(self):
+        """ Required property for paging indexing.
+
+        :returns: The starting index of pages
+        :rtype: int
+        """
+
+        return 1
+
+    @property
     def paging_results(self):
         """ Required property for paging results.
 
@@ -45,7 +51,7 @@ class IDopeSpider(BaseSpider):
         :rtype: int
         """
 
-        return self._paging_results
+        return 10
 
     @property
     def query_scheme(self):
@@ -55,7 +61,7 @@ class IDopeSpider(BaseSpider):
         :rtype: str
         """
 
-        return self._query_scheme
+        return 'https'
 
     @property
     def query_path(self):
@@ -65,28 +71,13 @@ class IDopeSpider(BaseSpider):
         :rtype: str
         """
 
-        return self._query_path
-
-    def start_requests(self):
-        """ The scrapy request starters.
-
-        :returns: Yeilds requests for a sequence of pages
-        :rtype: list[scrapy.Request]
-        """
-
-        for page_index in range(1, math.ceil(
-            (self.results / self.paging_results)
-        ) + 1):
-            yield scrapy.Request(
-                self.get_url(self.query, page_index),
-                callback=self.parse
-            )
+        return '/torrent-list/{query}/?p={page}'
 
     def parse(self, response):
         """ Required first level page parser.
 
-        :param request: The request instance from ``start_requests``
-        :type request: scrapy.Request
+        :param response: The response instance from ``start_requests``
+        :type response: scrapy.Request
         :returns: Yields torrent items
         :rtype: list[items.Torrent]
         """
@@ -110,9 +101,9 @@ class IDopeSpider(BaseSpider):
                 self._category_map.get(
                     result.find(
                         'div', {'class': 'resultdivbottoncategory'}
-                    ).contents[0].strip().lower()
-                ),
-                items.TorrentCategory.Unknown
+                    ).contents[0].strip().lower(),
+                    items.TorrentCategory.Unknown
+                )
             ]
             info_hash = result.find(
                 'div', {'class': 'hideinfohash'}

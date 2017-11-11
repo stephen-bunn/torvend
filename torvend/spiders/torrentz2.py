@@ -19,9 +19,6 @@ class Torrentz2Spider(BaseSpider):
         'torrentz2.eu',
     ]
 
-    _paging_results = 50
-    _query_scheme = 'https'
-    _query_path = '/search/?f={query}&p={page}'
     _category_map = {
         'audio': items.TorrentCategory.Audio,
         'video': items.TorrentCategory.Video,
@@ -33,6 +30,16 @@ class Torrentz2Spider(BaseSpider):
     }
 
     @property
+    def paging_index(self):
+        """ Required property for paging indexing.
+
+        :returns: The starting index of pages
+        :rtype: int
+        """
+
+        return 0
+
+    @property
     def paging_results(self):
         """ Required property for paging results.
 
@@ -40,7 +47,7 @@ class Torrentz2Spider(BaseSpider):
         :rtype: int
         """
 
-        return self._paging_results
+        return 50
 
     @property
     def query_scheme(self):
@@ -50,7 +57,7 @@ class Torrentz2Spider(BaseSpider):
         :rtype: str
         """
 
-        return self._query_scheme
+        return 'https'
 
     @property
     def query_path(self):
@@ -60,13 +67,13 @@ class Torrentz2Spider(BaseSpider):
         :rtype: str
         """
 
-        return self._query_path
+        return '/search/?f={query}&p={page}'
 
     def parse(self, response):
         """ Required first level page parser.
 
-        :param request: The request instance from ``start_requests``
-        :type request: scrapy.Request
+        :param response: The response instance from ``start_requests``
+        :type response: scrapy.Request
         :returns: Yields torrent items
         :rtype: list[items.Torrent]
         """

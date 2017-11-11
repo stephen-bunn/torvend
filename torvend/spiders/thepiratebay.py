@@ -22,9 +22,6 @@ class ThePirateBaySpider(BaseSpider):
         'thepiratebay.se',
     ]
 
-    _paging_results = 30
-    _query_scheme = 'https'
-    _query_path = '/search/{query}/{page}'
     _category_map = {
         '100': items.TorrentCategory.Audio,
         '200': items.TorrentCategory.Video,
@@ -38,6 +35,16 @@ class ThePirateBaySpider(BaseSpider):
     }
 
     @property
+    def paging_index(self):
+        """ Required property for paging indexing.
+
+        :returns: The starting index of pages
+        :rtype: int
+        """
+
+        return 0
+
+    @property
     def paging_results(self):
         """ Required property for paging results.
 
@@ -45,7 +52,7 @@ class ThePirateBaySpider(BaseSpider):
         :rtype: int
         """
 
-        return self._paging_results
+        return 30
 
     @property
     def query_scheme(self):
@@ -55,7 +62,7 @@ class ThePirateBaySpider(BaseSpider):
         :rtype: str
         """
 
-        return self._query_scheme
+        return 'https'
 
     @property
     def query_path(self):
@@ -65,13 +72,13 @@ class ThePirateBaySpider(BaseSpider):
         :rtype: str
         """
 
-        return self._query_path
+        return '/search/{query}/{page}'
 
     def parse(self, response):
         """ Required first level page parser.
 
-        :param request: The request instance from ``start_requests``
-        :type request: scrapy.Request
+        :param response: The response instance from ``start_requests``
+        :type response: scrapy.Request
         :returns: Yields torrent items
         :rtype: list[items.Torrent]
         """
