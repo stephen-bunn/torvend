@@ -101,7 +101,7 @@ class OneThreeThreeSevenXSpider(BaseSpider):
         ).attrs['href']
         torrent['hash'] = result.find(
             'div', {'class': 'infohash-box'}
-        ).find('span').contents[0].strip()
+        ).find('span').contents[0].strip().lower()
 
         yield torrent
 

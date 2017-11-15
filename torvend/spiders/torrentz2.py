@@ -95,7 +95,7 @@ class Torrentz2Spider(BaseSpider):
             info_hash = furl.furl(
                 result_links.attrs['href']
             ).path.segments[-1]
-            torrent['hash'] = info_hash
+            torrent['hash'] = info_hash.lower()
             torrent['magnet'] = (
                 'magnet:?xt=urn:btih:{info_hash}&dn'
             ).format(**locals())

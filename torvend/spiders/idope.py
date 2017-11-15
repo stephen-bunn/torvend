@@ -106,7 +106,7 @@ class IDopeSpider(BaseSpider):
             info_hash = result.find(
                 'div', {'class': 'hideinfohash'}
             ).contents[0].strip()
-            torrent['hash'] = info_hash
+            torrent['hash'] = info_hash.lower()
             torrent['magnet'] = (
                 'magnet:?xt=urn:btih:{info_hash}&dn'
             ).format(**locals())

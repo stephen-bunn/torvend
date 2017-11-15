@@ -86,7 +86,7 @@ class LimeTorrentsSpider(BaseSpider):
         result_table = result.find('table')
         torrent['hash'] = result_table\
             .find('tr')\
-            .find_all('td')[-1].contents[0]
+            .find_all('td')[-1].contents[0].lower()
 
         torrent['magnet'] = result\
             .find('a', {'href': re.compile(r'^magnet:.*')}).attrs['href']

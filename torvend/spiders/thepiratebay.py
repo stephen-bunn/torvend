@@ -107,7 +107,7 @@ class ThePirateBaySpider(BaseSpider):
             torrent['hash'] = re.match(
                 r'.*magnet:\?xt=urn:(?:btih)+:([a-zA-Z0-9]+).*',
                 torrent['magnet']
-            ).groups()[0]
+            ).groups()[0].lower()
             (torrent['seeders'], torrent['leechers'],) = tuple([
                 int(column.contents[0])
                 for column in result.find_all('td', {'align': 'right'})
