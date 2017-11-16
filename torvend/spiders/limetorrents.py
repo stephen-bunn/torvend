@@ -109,7 +109,7 @@ class LimeTorrentsSpider(BaseSpider):
 
         :param response: The response instance from ``start_requests``
         :type response: scrapy.Request
-        :returns: Yields additional scrapy requets
+        :returns: Yields additional scrapy requests
         :rtype: list[scrapy.Request]
         """
 

@@ -242,6 +242,7 @@ def _validate_spinner(ctx, param, value):
     return value
 
 
+# TODO: make no color a true/false (-no/-) flag
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.option(
     '--no-color',
@@ -285,6 +286,8 @@ def cli(
                     setattr(instance, color_name, '')
 
 
+# TODO: add json export flag
+# TODO: pass results len to each spider retrieval
 @click.command(
     'list',
     short_help='Lists available spiders',
@@ -305,7 +308,7 @@ def cli_list(ctx):
 
 @click.command(
     'search',
-    short_help='Searches torrents',
+    short_help='Searches for torrents',
     context_settings={
         'ignore_unknown_options': True
     }
@@ -347,7 +350,7 @@ def cli_list(ctx):
         '({style.BOLD}{fore.GREEN}{seeders}{style.RESET}, '
         '{fore.RED}{leechers}{style.RESET})'
     ),
-    help='customize torrent render'
+    help='Customize torrent render'
 )
 @click.option(
     '-s', '--sort',
