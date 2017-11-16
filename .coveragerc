@@ -1,0 +1,10 @@
+[run]
+branch=True
+include=
+    torvend/*
+
+[report]
+show_missing=True
+omit=
+    torvend/const.py
+    */_common.py
