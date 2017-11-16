@@ -4,6 +4,7 @@
 # Copyright (c) 2017 Stephen Bunn (stephen@bunn.io)
 # MIT License <https://opensource.org/licenses/MIT>
 
+import sys
 import inspect
 
 from . import (__version__, spiders,)
@@ -97,7 +98,7 @@ def _search_torrents(ctx, client, query):
     def _torrent_callback(item, **kwargs):
         discovered.add(item)
 
-    if not ctx.params.get('no_spin', False):
+    if not ctx.params.get('quiet', False):
         with yaspin.yaspin(
             spinner=getattr(
                 yaspin.spinners.Spinners,
@@ -129,7 +130,7 @@ def _render_torrents(ctx, torrent_iterator, format):
     """
 
     enable_duplicates = ctx.params.get('show_duplicates', False)
-    enable_selection = ctx.params.get('select', True)
+    enable_selection = not ctx.params.get('select_best', False)
     result_count = ctx.params.get('results', 25)
     result_spacing = len(str(result_count))
 
@@ -147,11 +148,16 @@ def _render_torrents(ctx, torrent_iterator, format):
                 if not enable_duplicates:
                     seen.add(torrent['hash'])
 
-                print(rendered)
+                if enable_selection:
+                    print(rendered)
                 count += 1
                 displayed.append(torrent)
         except StopIteration:
             break
+
+    if len(displayed) <= 0:
+        print(("no results ☹"))
+        return
 
     if enable_selection:
         try:
@@ -187,6 +193,8 @@ def _render_torrents(ctx, torrent_iterator, format):
                     ).format(**COLORED, **locals()))
         except (KeyboardInterrupt, EOFError):
             pass
+    else:
+        sys.stdout.write(displayed[0]['magnet'])
 
 
 def _validate_spinner(ctx, param, value):
@@ -255,9 +263,10 @@ def _validate_spinner(ctx, param, value):
     help='Customize torrent sorting', show_default=True
 )
 @click.option(
-    '-x', '--select',
-    is_flag=True, default=True,
-    help='Allow interactive selection of magnet url'
+    '-b', '--select-best',
+    is_flag=True, default=False,
+    help='Automatically write best magnet to stdout',
+    show_default=True
 )
 @click.option(
     '-q', '--quiet',
@@ -276,7 +285,7 @@ def cli(
     ctx,
     allowed=None, ignored=None, spinner=None, fancy=None, show_duplicates=None,
     results=None, format=None, sort=None,
-    select=None, quiet=None, verbose=None,
+    select_best=None, quiet=None, verbose=None,
     query=None
 ):
     """\b
