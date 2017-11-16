@@ -48,15 +48,15 @@ def _build_client(ctx, allowed, ignored):
     :rtype: Client
     """
 
-    # NOTE: local import to speed up cli tool
-    from . import (spiders,)
-    from .client import (Client,)
-
     def parse_spiders(spider_sequence, delimiter=','):
         return list(filter(None, [
             spider.strip().lower()
             for spider in spider_sequence.split(delimiter)
         ]))
+
+    # NOTE: local import to speed up cli tool
+    from . import (spiders,)
+    from .client import (Client,)
 
     (allowed, ignored,) = (
         parse_spiders(allowed),
@@ -361,17 +361,28 @@ def cli_search(
     if fancy:
         click.echo(__version__.__fancy__)
     try:
+        # build search client
+        client = None
+        if not ctx.parent.params.get('quiet', False):
+            with yaspin.yaspin(
+                spinner=getattr(
+                    yaspin.spinners.Spinners,
+                    ctx.params.get('spinner', 'dots12')
+                ),
+                text=(
+                    '{style.BOLD} building {fore.MAGENTA}'
+                    'torvend{style.RESET}{style.BOLD} client '
+                    '{style.RESET} ...'
+                ).format(**COLORED, **locals())
+            ):
+                client = _build_client(ctx, allowed, ignored)
+        else:
+                client = _build_client(ctx, allowed, ignored)
+
+        # render discovered torrents (lazy)
         _render_torrents(
             ctx,
-            _search_torrents(
-                ctx,
-                _build_client(
-                    ctx,
-                    allowed,
-                    ignored,
-                ),
-                query,
-            ),
+            _search_torrents(ctx, client, query),
             format,
         )
     except (KeyboardInterrupt, EOFError):
