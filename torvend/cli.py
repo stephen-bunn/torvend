@@ -266,7 +266,6 @@ def _validate_spinner(ctx, param, value):
     '-b', '--select-best',
     is_flag=True, default=False,
     help='Automatically write best magnet to stdout',
-    show_default=True
 )
 @click.option(
     '-q', '--quiet',
