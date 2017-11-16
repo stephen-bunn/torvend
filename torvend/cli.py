@@ -151,12 +151,13 @@ def _render_torrents(ctx, torrent_iterator, format):
     :param str format: The string format to render torrents as
     """
 
+    # TODO: split up torrent selection into separate function
     enable_duplicates = ctx.params.get('show_duplicates', False)
     enable_selection = not ctx.params.get('select_best', False)
     result_count = ctx.params.get('results', 25)
-    result_spacing = len(str(result_count))
 
-    (displayed, seen, count,) = ([], set(), 0,)
+    (result_spacing, displayed, seen, count,) = \
+        (len(str(result_count)), [], set(), 0,)
     while count < result_count:
         try:
             torrent = next(torrent_iterator)
@@ -284,7 +285,13 @@ def cli(
                     setattr(instance, color_name, '')
 
 
-@click.command('list', short_help='Lists available spiders')
+@click.command(
+    'list',
+    short_help='Lists available spiders',
+    context_settings={
+        'ignore_unknown_options': True
+    }
+)
 @click.pass_context
 def cli_list(ctx):
     """ List available spiders.
@@ -296,7 +303,13 @@ def cli_list(ctx):
     _list_spiders(ctx)
 
 
-@click.command('search', short_help='Searches torrents')
+@click.command(
+    'search',
+    short_help='Searches torrents',
+    context_settings={
+        'ignore_unknown_options': True
+    }
+)
 @click.argument('query')
 @click.option(
     '--allowed',
@@ -391,6 +404,7 @@ def cli_search(
         pass
 
 
+# add click commands to cli group
 cli.add_command(cli_search)
 cli.add_command(cli_list)
 

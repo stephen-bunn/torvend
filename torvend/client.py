@@ -35,18 +35,6 @@ class Client(meta.Loggable):
                 "is not supported"
             ).format(**locals()))
 
-    def __repr__(self):
-        """ A string representation of an object instance.
-
-        :returns: A string representation of an object instance
-        :rtype: str
-        """
-
-        # TODO: maybe provide some useful information in this string
-        return (
-            '<{self.__class__.__name__}>'
-        ).format(**locals())
-
     @property
     def verbose(self):
         """ Indicates if verbose logging is enabled.
@@ -73,6 +61,19 @@ class Client(meta.Loggable):
         ).format(**locals())
         self._verbose = verbose
         const.verbose = verbose
+
+    def _item_callback(self, item, **kwargs):
+        """ An item callback for logging purposes.
+
+        :param item: The yielded item
+        :param kwargs: Any additional named arguments
+        :type kwargs: dict[str,....]
+        :rtype: None
+        """
+
+        self.log.debug((
+            'client `{self}` received item `{item}`, {kwargs}'
+        ).format(**locals()))
 
     def get_spiders(self):
         """ Returns a list of spider classes.
@@ -109,15 +110,18 @@ class Client(meta.Loggable):
         # NOTE: local import to speed up module loading
         import twisted.internet
 
-        crawl_runner = scrapy.crawler.CrawlerRunner({
+        crawler_settings = {
             'BOT_NAME': const.module_name,
             'USER_AGENT': (
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:39.0) '
                 'Gecko/20100101 Firefox/39.0'
             ),
             'LOG_ENABLED': self.verbose,
-        })
+        }
+        crawler_settings.update(self.settings)
+        crawl_runner = scrapy.crawler.CrawlerRunner(crawler_settings)
 
+        # register client available spiders
         for spider_class in self.get_spiders():
             self.log.debug((
                 'registering spider `{spider_class.__name__}` to '
@@ -129,6 +133,12 @@ class Client(meta.Loggable):
             )
 
         for crawler in crawl_runner.crawlers:
+            # subscribe crawler item scraped signal to client callback
+            crawler.signals.connect(
+                self._item_callback,
+                scrapy.signals.item_scraped
+            )
+            # subscribe crawler item scraped signal to user given callback
             self.log.debug((
                 'connecting item signal for spider `{crawler}` to '
                 '`{callback}`'
@@ -138,6 +148,7 @@ class Client(meta.Loggable):
                 scrapy.signals.item_scraped
             )
 
+        # begin domain parallel crawling process
         self.log.info((
             'starting crawl for query `{query}` with `{crawler_count}` '
             'different crawlers'

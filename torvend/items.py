@@ -24,19 +24,30 @@ class TorrentCategory(enum.Enum):
 
 
 class Torrent(scrapy.Item):
-    """ A torrent item.
+    """ An item that describes a torrent.
 
-    :ivar spider: The spider name which discovered the torrent
-    :ivar source: The source url of the torrent
-    :ivar name: The name of the torrent
-    :ivar size: The size in bytes of the torrent
-    :ivar hash: The infohash of the torrent
-    :ivar magnet: The magnet link of the torrent
-    :ivar categories: A list of applicable ``TorrentCategory``
-    :ivar seeders: The number of seeders
-    :ivar leechers: The number of leechers
-    :ivar uploaded: The datetime the torrent was uploaded
-    :ivar uploader: The name of the uploader
+    .. note:: The attributes of these `scrapy <https://scrapy.org>`_ items can
+        only be retrieved by indexing the object like a dictionary.
+        The same is true for setting the attributes of the object.
+
+        .. code-block:: python
+
+            torrent_name = torrent_instance['name']
+            torrent_instance['name'] = new_torrent_name
+
+
+    :param str spider: The spider name which discovered the torrent
+    :param str source: The source url of the torrent
+    :param str name: The name of the torrent
+    :param int size: The size in bytes of the torrent
+    :param str hash: The infohash of the torrent
+    :param str magnet:  The magnet link of the torrent
+    :param categories: A list of applicable categories
+    :type categories: list[torvend.items.TorrentCategory]
+    :param int seeders: The number of seeder
+    :param int leechers: The number of leechers
+    :param datetime.datetime uploaded: The datetime to torrent was uploaded
+    :param str uploader: The username of the uploader
     """
 
     def __repr__(self):

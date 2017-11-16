@@ -26,7 +26,36 @@ class _const(object):
 
     @property
     def module_name(self):
+        """ The name of the module.
+
+        :getter: Returns the name of the module
+        :setter: Does not allow setting
+        :rtype: str
+        """
+
         return __version__.__name__
+
+    @property
+    def module_version(self):
+        """ The version of the module.
+
+        :getter: Returns the version of the module
+        :setter: Does not allow setting
+        :rtype: str
+        """
+
+        return __version__.__version__
+
+    @property
+    def module_author(self):
+        """ The author of the module.
+
+        :getter: Returns the author of the module
+        :setter: Does not allow setting
+        :rtype: str
+        """
+
+        return __version__.__author__
 
     @property
     def base_dir(self):

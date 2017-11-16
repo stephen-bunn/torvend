@@ -1,0 +1,16 @@
+scrapy
+beautifulsoup4
+lxml
+requests
+humanfriendly
+dateparser
+furl
+pygogo
+twisted
+click
+pyperclip
+colored
+yaspin
+
+# NOTE: required for readthedocs.io
+sphinx-flask-themes
