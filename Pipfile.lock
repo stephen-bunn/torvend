@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "75fb4d156f0531728804e27e17bd6d63a4d8a09372820f08e7fbc69ee608de4e"
+            "sha256": "9db0786ad42c2614aeb067afd4a5ba388dde67354c314d80eb1c6fb0227cb851"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -503,6 +503,12 @@
             ],
             "version": "==2.5.1"
         },
+        "bottle": {
+            "hashes": [
+                "sha256:39b751aee0b167be8dffb63ca81b735bbf1dd0905b3bc42761efedee8f123355"
+            ],
+            "version": "==0.12.13"
+        },
         "certifi": {
             "hashes": [
                 "sha256:244be0d93b71e93fc0a0a479862051414d0e00e16435707e5bf5000f92e04694",
@@ -524,6 +530,12 @@
             ],
             "markers": "sys_platform == 'win32'",
             "version": "==0.3.9"
+        },
+        "cprofilev": {
+            "hashes": [
+                "sha256:8791748b1f3d3468c2c927c3fd5f905080b84d8f2d217ca764b7d9d7a1fb9a77"
+            ],
+            "version": "==1.0.7"
         },
         "docopt": {
             "hashes": [

@@ -83,6 +83,9 @@ setuptools.setup(
     include_package_data=True,
     install_requires=REQUIRES,
     packages=setuptools.find_packages(),
+    entry_points={
+        'console_scripts': ['torvend=torvend:cli']
+    },
     keywords=[
         'search',
         'web-scraping',

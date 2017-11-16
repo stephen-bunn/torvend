@@ -7,8 +7,7 @@
 import sys
 import inspect
 
-from . import (__version__, spiders,)
-from .client import (Client,)
+from . import (__version__,)
 
 import click
 import yaspin
@@ -28,6 +27,8 @@ def _list_spiders(ctx):
     :param click.Context ctx: The calling clicks current context
     """
 
+    from . import (spiders,)
+
     for (_, spider_class,) in inspect.getmembers(
         spiders,
         predicate=inspect.isclass
@@ -46,6 +47,10 @@ def _build_client(ctx, allowed, ignored):
     :returns: A valid client instance
     :rtype: Client
     """
+
+    # NOTE: local import to speed up cli tool
+    from . import (spiders,)
+    from .client import (Client,)
 
     def parse_spiders(spider_sequence, delimiter=','):
         return list(filter(None, [
@@ -265,6 +270,9 @@ def cli(
 
     A set of torrent vendor scrapers (by Stephen Bunn).
     """
+
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_usage())
 
     if no_color:
         # handle nulling of color values in colored instance (maybe dangerous)

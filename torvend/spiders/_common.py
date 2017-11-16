@@ -14,8 +14,6 @@ import bs4
 import furl
 import scrapy
 import requests
-import dateparser
-import humanfriendly
 
 
 class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
@@ -167,6 +165,9 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
         :rtype: datetime.datetime
         """
 
+        # NOTE: local import to speed up module loading
+        import dateparser
+
         return dateparser.parse(text, date_formats=formats)
 
     def parse_size(self, text):
@@ -176,6 +177,9 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
         :returns: A real byte size
         :rtype: int
         """
+
+        # NOTE: local import to speed up module loading
+        import humanfriendly
 
         return humanfriendly.parse_size(text)
 

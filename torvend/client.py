@@ -10,7 +10,6 @@ from . import (const, meta, spiders,)
 
 import scrapy.crawler
 import scrapy.signals
-import twisted.internet
 
 
 class Client(meta.Loggable):
@@ -106,6 +105,9 @@ class Client(meta.Loggable):
         :param int results: The minimum number of results for each spider to
             return
         """
+
+        # NOTE: local import to speed up module loading
+        import twisted.internet
 
         crawl_runner = scrapy.crawler.CrawlerRunner({
             'BOT_NAME': const.module_name,
