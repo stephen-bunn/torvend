@@ -22,7 +22,24 @@ CONTEXT_SETTINGS = dict(
 )
 
 
-def _build_client(ctx):
+def _list_spiders(ctx):
+    """ List available spiders.
+
+    :param click.Context ctx: The calling clicks current context
+    """
+
+    for (_, spider_class,) in inspect.getmembers(
+        spiders,
+        predicate=inspect.isclass
+    ):
+        spider_name = spider_class.name.lower()
+        domains = ', '.join(spider_class.allowed_domains)
+        print((
+            '{fore.CYAN}{style.BOLD}{spider_name}{style.RESET} ({domains})'
+        ).format(**COLORED, **locals()))
+
+
+def _build_client(ctx, allowed, ignored):
     """ Builds a client instance given context.
 
     :param click.Context ctx: The calling clicks current context
@@ -37,8 +54,8 @@ def _build_client(ctx):
         ]))
 
     (allowed, ignored,) = (
-        parse_spiders(ctx.params.get('allowed', '')),
-        parse_spiders(ctx.params.get('ignored', '')),
+        parse_spiders(allowed),
+        parse_spiders(ignored),
     )
     (allowed_spiders, ignored_spiders,) = ([], [],)
 
@@ -64,7 +81,7 @@ def _build_client(ctx):
     return Client(
         allowed=allowed_spiders,
         ignored=ignored_spiders,
-        verbose=ctx.params.get('verbose', False)
+        verbose=ctx.parent.params.get('verbose', False)
     )
 
 
@@ -98,7 +115,7 @@ def _search_torrents(ctx, client, query):
     def _torrent_callback(item, **kwargs):
         discovered.add(item)
 
-    if not ctx.params.get('quiet', False):
+    if not ctx.parent.params.get('quiet', False):
         with yaspin.yaspin(
             spinner=getattr(
                 yaspin.spinners.Spinners,
@@ -217,7 +234,59 @@ def _validate_spinner(ctx, param, value):
     return value
 
 
-@click.command(context_settings=CONTEXT_SETTINGS)
+@click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
+@click.option(
+    '--no-color',
+    is_flag=True, default=False, help='Disable pretty colors'
+)
+@click.option(
+    '-q', '--quiet',
+    is_flag=True, default=False, help='Disable spinners'
+)
+@click.option(
+    '-v', '--verbose',
+    is_flag=True, default=False, help='Enable verbose logging'
+)
+@click.version_option(
+    prog_name=__version__.__name__,
+    version=__version__.__version__
+)
+@click.pass_context
+def cli(
+    ctx,
+    no_color=None, quiet=None, verbose=None
+):
+    """\b
+    ▄▄▄▄▄      ▄▄▄   ▌ ▐·▄▄▄ . ▐ ▄ ·▄▄▄▄
+    •██  ▪     ▀▄ █·▪█·█▌▀▄.▀·•█▌▐███▪ ██
+     ▐█.▪ ▄█▀▄ ▐▀▀▄ ▐█▐█•▐▀▀▪▄▐█▐▐▌▐█· ▐█▌
+     ▐█▌·▐█▌.▐▌▐█•█▌ ███ ▐█▄▄▌██▐█▌██. ██
+     ▀▀▀  ▀█▄▀▪.▀  ▀. ▀   ▀▀▀ ▀▀ █▪▀▀▀▀▀•
+
+    A set of torrent vendor scrapers (by Stephen Bunn).
+    """
+
+    if no_color:
+        # handle nulling of color values in colored instance (maybe dangerous)
+        for (colored_type, instance,) in COLORED.items():
+            for color_name in instance.__dict__.keys():
+                if color_name.isupper():
+                    setattr(instance, color_name, '')
+
+
+@click.command('list', short_help='Lists available spiders')
+@click.pass_context
+def cli_list(ctx):
+    """ List available spiders.
+
+    \b
+    torvend list
+    """
+
+    _list_spiders(ctx)
+
+
+@click.command('search', short_help='Searches torrents')
 @click.argument('query')
 @click.option(
     '--allowed',
@@ -267,34 +336,18 @@ def _validate_spinner(ctx, param, value):
     is_flag=True, default=False,
     help='Automatically write best magnet to stdout',
 )
-@click.option(
-    '-q', '--quiet',
-    is_flag=True, default=False, help='Disable spinners'
-)
-@click.option(
-    '-v', '--verbose',
-    is_flag=True, default=False, help='Enable verbose logging'
-)
-@click.version_option(
-    prog_name=__version__.__name__,
-    version=__version__.__version__
-)
 @click.pass_context
-def cli(
+def cli_search(
     ctx,
     allowed=None, ignored=None, spinner=None, fancy=None, show_duplicates=None,
     results=None, format=None, sort=None,
-    select_best=None, quiet=None, verbose=None,
+    select_best=None,
     query=None
 ):
-    """\b
-    ▄▄▄▄▄      ▄▄▄   ▌ ▐·▄▄▄ . ▐ ▄ ·▄▄▄▄
-    •██  ▪     ▀▄ █·▪█·█▌▀▄.▀·•█▌▐███▪ ██
-     ▐█.▪ ▄█▀▄ ▐▀▀▄ ▐█▐█•▐▀▀▪▄▐█▐▐▌▐█· ▐█▌
-     ▐█▌·▐█▌.▐▌▐█•█▌ ███ ▐█▄▄▌██▐█▌██. ██
-     ▀▀▀  ▀█▄▀▪.▀  ▀. ▀   ▀▀▀ ▀▀ █▪▀▀▀▀▀•
+    """ Search for torrents:
 
-    A set of torrent vendor scrapers (by Stephen Bunn).
+    \b
+    torvend search "query"
     """
 
     if fancy:
@@ -304,13 +357,21 @@ def cli(
             ctx,
             _search_torrents(
                 ctx,
-                _build_client(ctx),
-                query
+                _build_client(
+                    ctx,
+                    allowed,
+                    ignored,
+                ),
+                query,
             ),
-            format
+            format,
         )
     except (KeyboardInterrupt, EOFError):
         pass
+
+
+cli.add_command(cli_search)
+cli.add_command(cli_list)
 
 
 if __name__ == '__main__':
