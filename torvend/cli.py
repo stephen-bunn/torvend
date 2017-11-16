@@ -178,7 +178,9 @@ def _render_torrents(ctx, torrent_iterator, format):
             break
 
     if len(displayed) <= 0:
-        print(("no results ☹"))
+        print((
+            '{style.BOLD}{fore.WHITE}no results{style.RESET}'
+        ).format(**COLORED))
         return
 
     if enable_selection:

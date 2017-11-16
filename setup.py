@@ -26,6 +26,10 @@ REQUIRES = [
     'colored',
     'yaspin',
 ]
+
+if sys.platform in ('win32', 'win64',):
+    REQUIRES.extend(['pypiwin32'])
+
 RELEASE = {}
 
 # NOTE: important dumb setup for complete segregation of module info
