@@ -17,6 +17,10 @@ furl = "*"
 blinker = "*"
 pygogo = "*"
 twisted = "*"
+click = "*"
+pyperclip = "*"
+colored = "*"
+yaspin = "*"
 
 
 [dev-packages]

@@ -36,6 +36,18 @@ class Client(meta.Loggable):
                 "is not supported"
             ).format(**locals()))
 
+    def __repr__(self):
+        """ A string representation of an object instance.
+
+        :returns: A string representation of an object instance
+        :rtype: str
+        """
+
+        # TODO: maybe provide some useful information in this string
+        return (
+            '<{self.__class__.__name__}>'
+        ).format(**locals())
+
     @property
     def verbose(self):
         """ Indicates if verbose logging is enabled.

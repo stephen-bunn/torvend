@@ -114,6 +114,9 @@ class Torrentz2Spider(BaseSpider):
                     )
                     for keyword in result_desc.contents[-1].split(' ')[2:]
                 ]
+            if len(torrent['categories']) <= 0:
+                torrent['categories'] = [items.TorrentCategory.Unknown]
+
             (_, uploaded, size, seeders, leechers,) = tuple([
                 column.contents[0]
                 for column in result.find('dd').find_all('span')
