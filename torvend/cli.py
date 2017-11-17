@@ -309,12 +309,7 @@ def cli(
                 if color_name.isupper():
                     setattr(instance, color_name, '')
 
-    ctx.obj = {}
-    ctx.obj.update({
-        'color': color,
-        'quiet': quiet,
-        'verbose': verbose
-    })
+    ctx.obj = ctx.params
 
 
 @click.command(
