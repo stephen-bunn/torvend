@@ -101,5 +101,6 @@ ENV/
 .mypy_cache/
 
 # torvend settings
+.vscode/
 main.py
 logs/

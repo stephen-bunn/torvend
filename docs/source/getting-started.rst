@@ -11,11 +11,16 @@ This is accomplished by leveraging the `scrapy <https://scrapy.org>`_ package to
 
 Installation
 ------------
-Currently Torvend is on `PyPi <https://pypi.org/project/torvend/>`_ and can easily be installed through `pip <https://pypi.org/project/pip/>`_!
+Since Torvend is not yet on `PyPi <https://pypi.org/>`_, the only way to install it is by running the following commands:
 
 .. code-block:: bash
 
-   pip install torvend
+   pip install --user pipenv --upgrade
+   git clone https://github.com/stephen-bunn/torvend.git
+   cd torvend
+   pipenv install --three
+   pipenv run setup.py sdist
+   pip install dist/torvend-0.0.0.tar.gz # version number may be different
 
 
 This will install the Torvend package as well as give you access to the embeded command line utility!
@@ -112,7 +117,7 @@ This can be done using `webtorrent <https://github.com/webtorrent/webtorrent>`_ 
 
 .. code-block:: text
 
-   $ torvend search -b "a video" | webtorrent --mpv
+   $ torvend -q search -b "a video" | webtorrent --mpv
    ...
 
 

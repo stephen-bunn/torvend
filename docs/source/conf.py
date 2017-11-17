@@ -30,7 +30,7 @@ PACKAGE = {}
 with open(os.path.abspath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '..', '..', 'torvend', '__version__.py'
-)), 'r') as fp:
+)), 'r', encoding='utf-8') as fp:
     exec(fp.read(), PACKAGE)
 
 

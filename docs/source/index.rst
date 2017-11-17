@@ -1,6 +1,7 @@
 =======
 Torvend
 =======
+A command line utility for searching for torrents across many popular sharing sites.
 
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
    :target: https://saythanks.io/to/stephen-bunn
