@@ -330,7 +330,6 @@ def cli_list(ctx):
     _list_spiders(ctx)
 
 
-# TODO: make --select/--no-select a flag to use to indicate selection
 @click.command(
     'search',
     short_help='Searches for torrents',
