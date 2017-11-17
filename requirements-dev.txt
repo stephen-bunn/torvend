@@ -1,0 +1,10 @@
+ptpython
+flake8
+sphinx
+cprofilev
+sphinx-click
+flask-sphinx-themes
+coverage
+pytest
+pytest-cov
+pytest-flake8

@@ -26,6 +26,19 @@ REQUIRES = [
     'colored',
     'yaspin',
 ]
+EXTRA_REQUIRES = {
+    'dev': [
+        'pytest',
+        'pytest-cov',
+        'pytest-flake8',
+        'flake8',
+        'sphinx',
+        'cprofilev',
+        'sphinx-click',
+        'coverage',
+        'ptpython',
+    ]
+}
 
 if sys.platform in ('win32', 'win64',):
     REQUIRES.extend(['pypiwin32'])
@@ -86,6 +99,7 @@ setuptools.setup(
     url='https://github.com/stephen-bunn/torvend',
     include_package_data=True,
     install_requires=REQUIRES,
+    extra_requires=EXTRA_REQUIRES,
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': ['torvend=torvend:cli']
@@ -107,6 +121,8 @@ setuptools.setup(
         'Operating System :: POSIX',
         'Operating System :: MacOS :: MacOS X',
         'Natural Language :: English',
+        'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
+        'Topic :: Utilities'
     ],
     cmdclass={
         'upload': UploadCommand,
