@@ -23,17 +23,128 @@ class Client(meta.Loggable):
         :type settings: dict[str,....]
         :param ignored: Any ignored spiders
         :type ignored: list[torvend.spiders._common.BaseSpider]
+        :param allowed: Any allowed spiders
+        :type allowed: list[torvend.spiders._common.BaseSpider]
         :param bool verbose: A flag to indicate if verbose logging is enabled
         """
 
-        (self.settings, self.ignored, self.allowed, self.verbose,) = \
-            (settings, ignored, allowed, verbose,)
-
-        if len(self.ignored) > 0 and len(self.allowed) > 0:
+        if len(ignored) > 0 and len(allowed) > 0:
             raise ValueError((
                 "usage of both 'ignored' and 'allowed' in client '{self}' "
                 "is not supported"
             ).format(**locals()))
+
+        (self.settings, self.ignored, self.allowed, self.verbose,) = \
+            (settings, ignored, allowed, verbose,)
+
+    @property
+    def settings(self):
+        """ Overrides for default client scrapy settings.
+
+        :getter: Returns overriding dictionary of client scrapy settings
+        :setter: Sets the overriding settings
+        :rtype: dict[str,....]
+        """
+
+        if not hasattr(self, '_settings'):
+            self._settings = {}
+        return self._settings
+
+    @settings.setter
+    def settings(self, settings):
+        """ Sets the overriding client scrapy settings.
+
+        :param settings: The new overriding scrapy settings
+        :type settings: dict[str,....]
+        :rtype: None
+        """
+
+        assert isinstance(settings, dict), (
+            "settings must be a dictionary, received '{settings}'"
+        ).format(**locals())
+        self._settings = settings
+
+    @property
+    def ignored(self):
+        """ A list of ignored spider classes.
+
+        :getter: Returns a list of ignored spider classes
+        :setter: Sets the list of ignored spider classes
+        :rtype: list[torvend.spiders._common.BaseSpider]
+        """
+
+        if not hasattr(self, '_ignored'):
+            self._ignored = []
+        return self._ignored
+
+    @ignored.setter
+    def ignored(self, ignored):
+        """ Sets the list of ignored spider classes.
+
+        :param ignored: A list of ignored spider classes
+        :type ignored: list[torvend.spiders._common.BaseSpider]
+        :rtype: None
+        """
+
+        if ignored:
+            assert isinstance(ignored, list) and all(
+                inspect.isclass(entry)
+                for entry in ignored
+            ) and all(
+                issubclass(entry, spiders._common.BaseSpider)
+                for entry in ignored
+            ), (
+                "ignored must be a list of spider classes, "
+                "received '{ignored}'"
+            ).format(**locals())
+            if hasattr(self, '_allowed') and len(self._allowed) > 0:
+                self.log.debug((
+                    'setting ignored spiders clears allowed spiders, '
+                    'currently allowed {self._allowed}'
+                ).format(**locals()))
+                self._allowed = []
+        self._ignored = ignored
+
+    @property
+    def allowed(self):
+        """ A list of allowed spider classes.
+
+        :getter: Returns a list of allowed spider classes
+        :setter: Sets the list of allowed spider classes
+        :rtype: list[torvend.spiders._common.BaseSpider]
+        """
+
+        if not hasattr(self, '_allowed'):
+            self._allowed = []
+        return self._allowed
+
+    @allowed.setter
+    def allowed(self, allowed):
+        """ Sets the list of allowed spider classes.
+
+        :param allowed: A list of allowed spider classes
+        :type allowed: list[torvend.spiders._common.BaseSpider]
+        :rtype: None
+        """
+
+        if allowed:
+            assert isinstance(allowed, list) and all(
+                inspect.isclass(entry)
+                for entry in allowed
+            ) and all(
+                issubclass(entry, spiders._common.BaseSpider)
+                for entry in allowed
+            ), (
+                "allowed must be a list of spider classes, "
+                "received '{allowed}'"
+            ).format(**locals())
+            if hasattr(self, '_ignored') and len(self._ignored) > 0:
+                self.log.debug((
+                    'setting allowed spiders clears ignored spiders, '
+                    'currently ignored {self._ignored}'
+                ).format(**locals()))
+                self._ignored = []
+        self._allowed = allowed
 
     @property
     def verbose(self):
@@ -82,6 +193,7 @@ class Client(meta.Loggable):
         :rtype: list[torvend.spiders._common.BaseSpider]
         """
 
+        # NOTE: assuming allowed > 0 and ignored > 0 is not a case
         compare_allowed = len(self.allowed) > 0
         for (_, spider_class,) in inspect.getmembers(
             spiders,

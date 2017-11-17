@@ -5,8 +5,8 @@
 # MIT License <https://opensource.org/licenses/MIT>
 
 import sys
-import json
 import inspect
+import contextlib
 
 from . import (__version__,)
 
@@ -22,13 +22,39 @@ CONTEXT_SETTINGS = dict(
 )
 
 
+def _build_spinner(ctx, text):
+    """ Builds a spinner context manager.
+
+    :param click.Context ctx: The calling clicks current context
+    :param str text: The text to display in the spinner
+    :returns: A spinner context manager
+    """
+
+    if ctx.parent.params.get('quiet', False):
+        # NOTE: ExitStack is essentially a null context manager
+        return contextlib.ExitStack()
+
+    return yaspin.yaspin(
+        spinner=getattr(
+            yaspin.spinners.Spinners,
+            ctx.params.get('spinner', 'dots12')
+        ),
+        text=text
+    )
+
+
 def _list_spiders(ctx):
     """ List available spiders.
 
     :param click.Context ctx: The calling clicks current context
     """
 
-    from . import (spiders,)
+    with _build_spinner(ctx, (
+        '{style.BOLD} getting {fore.MAGENTA}'
+        'torvend{style.RESET}{style.BOLD} spiders '
+        '{style.RESET} ...'
+    ).format(**COLORED, **locals())):
+        from . import (spiders,)
 
     for (_, spider_class,) in inspect.getmembers(
         spiders,
@@ -122,19 +148,10 @@ def _search_torrents(ctx, client, query):
     def _torrent_callback(item, **kwargs):
         discovered.add(item)
 
-    if not ctx.parent.params.get('quiet', False):
-        with yaspin.yaspin(
-            spinner=getattr(
-                yaspin.spinners.Spinners,
-                ctx.params.get('spinner', 'dots12')
-            ),
-            text=(
-                '{style.BOLD} searching for '
-                '{fore.GREEN}{query}{style.RESET} ...'
-            ).format(**COLORED, **locals())
-        ):
-            client.search(query, _torrent_callback, results=result_count)
-    else:
+    with _build_spinner(ctx, (
+        '{style.BOLD} searching for '
+        '{fore.GREEN}{query}{style.RESET} ...'
+    ).format(**COLORED, **locals())):
         client.search(query, _torrent_callback, results=result_count)
 
     for torrent in _sort_torrents(
@@ -311,6 +328,7 @@ def cli_list(ctx):
     _list_spiders(ctx)
 
 
+# TODO: make --select/--no-select a flag to use to indicate selection
 @click.command(
     'search',
     short_help='Searches for torrents',
@@ -339,9 +357,14 @@ def cli_list(ctx):
     is_flag=True, default=False, help='Display fancy title'
 )
 @click.option(
-    '--show-duplicates',
-    is_flag=True, default=False,
-    help='Allow duplicate torrents to be displayed'
+    '--select/--no-select',
+    default=True, help='Enable torrent selection', show_default=True
+)
+@click.option(
+    '--duplicates/--no-duplicates',
+    default=False,
+    help='Allow duplicate torrents to be displayed',
+    show_default=True
 )
 @click.option(
     '-r', '--results',
@@ -375,7 +398,8 @@ def cli_list(ctx):
 @click.pass_context
 def cli_search(
     ctx,
-    allowed=None, ignored=None, spinner=None, fancy=None, show_duplicates=None,
+    allowed=None, ignored=None, spinner=None, fancy=None,
+    select=None, duplicates=None,
     results=None, format=None, to_json=None, sort=None,
     select_best=None,
     query=None
@@ -391,21 +415,12 @@ def cli_search(
     try:
         # build search client
         client = None
-        if not ctx.parent.params.get('quiet', False):
-            with yaspin.yaspin(
-                spinner=getattr(
-                    yaspin.spinners.Spinners,
-                    ctx.params.get('spinner', 'dots12')
-                ),
-                text=(
-                    '{style.BOLD} building {fore.MAGENTA}'
-                    'torvend{style.RESET}{style.BOLD} client '
-                    '{style.RESET} ...'
-                ).format(**COLORED, **locals())
-            ):
-                client = _build_client(ctx, allowed, ignored)
-        else:
-                client = _build_client(ctx, allowed, ignored)
+        with _build_spinner(ctx, (
+            '{style.BOLD} building {fore.MAGENTA}'
+            'torvend{style.RESET}{style.BOLD} client '
+            '{style.RESET} ...'
+        ).format(**COLORED, **locals())):
+            client = _build_client(ctx, allowed, ignored)
 
         # render discovered torrents (lazy)
         render_iterator = _render_torrents(
@@ -425,8 +440,11 @@ def cli_search(
             )
             for (torrent, _,) in render_iterator:
                 torrent_exporter.export_item(torrent)
-        else:
+        elif select:
             _select_torrent(ctx, render_iterator)
+        else:
+            for (torrent, rendered,) in render_iterator:
+                print(rendered)
 
     except (KeyboardInterrupt, EOFError):
         pass

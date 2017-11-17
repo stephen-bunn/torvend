@@ -6,5 +6,9 @@ include=
 [report]
 show_missing=True
 omit=
+    torvend/__init__.py
+    torvend/__version__.py
     torvend/const.py
+    torvend/spiders/__init__.py
+    torvend/meta/*
     */_common.py

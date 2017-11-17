@@ -68,6 +68,7 @@ class Torrent(scrapy.Item):
     size = scrapy.Field(serializer=int)
     hash = scrapy.Field()
     magnet = scrapy.Field()
+    # FIXME: find a better way to handle this than a lambda
     categories = scrapy.Field(serializer=lambda x: [_.value for _ in x])
     seeders = scrapy.Field(serializer=int)
     leechers = scrapy.Field(serializer=int)
