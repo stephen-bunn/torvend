@@ -35,6 +35,11 @@ The command line tool should be able to be accessed by simply executing ``torven
 
 *If for some reason your shell can't find torvend, make sure that your Python scripts directory is on your $PATH.*
 
+
+.. image:: ./_static/usage.gif
+   :align: center
+
+
 .. code-block:: text
 
    $ torvend
