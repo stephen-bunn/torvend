@@ -5,6 +5,7 @@
 # MIT License <https://opensource.org/licenses/MIT>
 
 import sys
+import json
 import inspect
 
 from . import (__version__,)
@@ -115,6 +116,7 @@ def _search_torrents(ctx, client, query):
     :rtype: List[torvend.items.Torrent]
     """
 
+    result_count = ctx.params.get('results', 25)
     discovered = set()
 
     def _torrent_callback(item, **kwargs):
@@ -131,9 +133,9 @@ def _search_torrents(ctx, client, query):
                 '{fore.GREEN}{query}{style.RESET} ...'
             ).format(**COLORED, **locals())
         ):
-            client.search(query, _torrent_callback)
+            client.search(query, _torrent_callback, results=result_count)
     else:
-        client.search(query, _torrent_callback)
+        client.search(query, _torrent_callback, results=result_count)
 
     for torrent in _sort_torrents(
         ctx, list(discovered),
@@ -151,75 +153,81 @@ def _render_torrents(ctx, torrent_iterator, format):
     :param str format: The string format to render torrents as
     """
 
-    # TODO: split up torrent selection into separate function
-    enable_duplicates = ctx.params.get('show_duplicates', False)
-    enable_selection = not ctx.params.get('select_best', False)
+    show_duplicates = ctx.params.get('show_duplicates', False)
     result_count = ctx.params.get('results', 25)
 
-    (result_spacing, displayed, seen, count,) = \
-        (len(str(result_count)), [], set(), 0,)
+    (seen, count,) = (set(), 0,)
     while count < result_count:
         try:
             torrent = next(torrent_iterator)
             if torrent['hash'] not in seen:
                 rendered = format.format(**COLORED, **torrent)
-                if enable_selection:
-                    rendered = (
-                        ('{count:>{result_spacing}} ➜ ').format(**locals()) +
-                        rendered
-                    )
-                if not enable_duplicates:
+                if not show_duplicates:
                     seen.add(torrent['hash'])
 
-                if enable_selection:
-                    print(rendered)
+                yield (torrent, rendered,)
                 count += 1
-                displayed.append(torrent)
         except StopIteration:
             break
 
-    if len(displayed) <= 0:
+    if count <= 0:
         print((
-            '{style.BOLD}{fore.WHITE}no results{style.RESET}'
+            '{style.BOLD}{fore.WHITE}sorry, no results{style.RESET}'
         ).format(**COLORED))
         return
 
-    if enable_selection:
-        try:
-            while True:
-                selected_idx = input((
-                    '{fore.WHITE}{style.BOLD}[select torrent]:{style.RESET} '
-                ).format(**COLORED)).strip()
-                if selected_idx.isdigit():
-                    selected_idx = int(selected_idx)
-                    if selected_idx >= 0 and selected_idx < result_count:
-                        selected_torrent = displayed[selected_idx]
-                        print((
-                            'copying magnet for '
-                            '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
-                            '{style.RESET} from {fore.CYAN}{style.BOLD}'
-                            '{selected_torrent[spider]}{style.RESET} '
-                            'to clipboard ... '
-                        ).format(**COLORED, **locals()), end='')
-                        pyperclip.copy(selected_torrent['magnet'])
-                        print((
-                            '{fore.GREEN}{style.BOLD}✔{style.RESET}'
-                        ).format(**COLORED))
-                        break
-                    else:
-                        print((
-                            '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
-                            '{fore.RED} is out of range{style.RESET}'
-                        ).format(**COLORED, **locals()))
+
+def _select_torrent(ctx, render_iterator):
+    """ Prompts the user for selection of a rendered torrent.
+
+    :param click.Context ctx: The calling clicks current context
+    :param render_iterator: An iterator which yields a torrent, str pair
+    :type render_iterator: List[torvend.items.Torrent, str]
+    """
+
+    result_count = ctx.params.get('results', 25)
+    result_spacing = len(str(result_count))
+    displayed = []
+
+    for (idx, (torrent, rendered,)) in enumerate(render_iterator):
+        print((
+            '{idx:>{result_spacing}} ➜ '
+        ).format(**locals()) + rendered)
+        displayed.append(torrent)
+
+    try:
+        while True:
+            selected_idx = input((
+                '{fore.WHITE}{style.BOLD}[select torrent]:{style.RESET} '
+            ).format(**COLORED)).strip()
+            if selected_idx.isdigit():
+                selected_idx = int(selected_idx)
+                if selected_idx >= 0 and selected_idx < result_count:
+                    selected_torrent = displayed[selected_idx]
+                    print((
+                        'copying magnet for '
+                        '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
+                        '{style.RESET} from {fore.CYAN}{style.BOLD}'
+                        '{selected_torrent[spider]}{style.RESET} '
+                        'to clipboard ... '
+                    ).format(**COLORED, **locals()), end='')
+                    pyperclip.copy(selected_torrent['magnet'])
+                    print((
+                        '{fore.GREEN}{style.BOLD}✔{style.RESET}'
+                    ).format(**COLORED))
+                    break
                 else:
                     print((
                         '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
-                        '{fore.RED} is not a valid digit{style.RESET}'
+                        '{fore.RED} is out of range{style.RESET}'
                     ).format(**COLORED, **locals()))
-        except (KeyboardInterrupt, EOFError):
-            pass
-    else:
-        sys.stdout.write(displayed[0]['magnet'])
+            else:
+                print((
+                    '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
+                    '{fore.RED} is not a valid digit{style.RESET}'
+                ).format(**COLORED, **locals()))
+    except (KeyboardInterrupt, EOFError):
+        pass
 
 
 def _validate_spinner(ctx, param, value):
@@ -242,11 +250,10 @@ def _validate_spinner(ctx, param, value):
     return value
 
 
-# TODO: make no color a true/false (-no/-) flag
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.option(
-    '--no-color',
-    is_flag=True, default=False, help='Disable pretty colors'
+    '--color/--no-color',
+    default=True, help='Enable pretty colors', show_default=True
 )
 @click.option(
     '-q', '--quiet',
@@ -263,7 +270,7 @@ def _validate_spinner(ctx, param, value):
 @click.pass_context
 def cli(
     ctx,
-    no_color=None, quiet=None, verbose=None
+    color=None, quiet=None, verbose=None
 ):
     """\b
     ▄▄▄▄▄      ▄▄▄   ▌ ▐·▄▄▄ . ▐ ▄ ·▄▄▄▄
@@ -278,7 +285,7 @@ def cli(
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_usage())
 
-    if no_color:
+    if not color:
         # handle nulling of color values in colored instance (maybe dangerous)
         for (colored_type, instance,) in COLORED.items():
             for color_name in instance.__dict__.keys():
@@ -286,8 +293,6 @@ def cli(
                     setattr(instance, color_name, '')
 
 
-# TODO: add json export flag
-# TODO: pass results len to each spider retrieval
 @click.command(
     'list',
     short_help='Lists available spiders',
@@ -353,6 +358,11 @@ def cli_list(ctx):
     help='Customize torrent render'
 )
 @click.option(
+    '-j', '--json', 'to_json',
+    is_flag=True, default=False,
+    help='Write results to stdout as json (disable selection)'
+)
+@click.option(
     '-s', '--sort',
     type=click.Choice(['seeders']), default='seeders',
     help='Customize torrent sorting', show_default=True
@@ -366,7 +376,7 @@ def cli_list(ctx):
 def cli_search(
     ctx,
     allowed=None, ignored=None, spinner=None, fancy=None, show_duplicates=None,
-    results=None, format=None, sort=None,
+    results=None, format=None, to_json=None, sort=None,
     select_best=None,
     query=None
 ):
@@ -398,11 +408,26 @@ def cli_search(
                 client = _build_client(ctx, allowed, ignored)
 
         # render discovered torrents (lazy)
-        _render_torrents(
+        render_iterator = _render_torrents(
             ctx,
             _search_torrents(ctx, client, query),
             format,
         )
+
+        if select_best:
+            sys.stdout.write(next(render_iterator)[0]['magnet'])
+        elif to_json:
+            # NOTE: local import to speed up cli response
+            from scrapy.exporters import JsonItemExporter
+            torrent_exporter = JsonItemExporter(
+                sys.stdout.buffer,
+                encoding='utf-8'
+            )
+            for (torrent, _,) in render_iterator:
+                torrent_exporter.export_item(torrent)
+        else:
+            _select_torrent(ctx, render_iterator)
+
     except (KeyboardInterrupt, EOFError):
         pass
 
