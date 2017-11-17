@@ -26,7 +26,7 @@ REQUIRES = [
     'colored',
     'yaspin',
 ]
-EXTRA_REQUIRES = {
+EXTRAS_REQUIRE = {
     'dev': [
         'pytest',
         'pytest-cov',
@@ -99,7 +99,7 @@ setuptools.setup(
     url='https://github.com/stephen-bunn/torvend',
     include_package_data=True,
     install_requires=REQUIRES,
-    extra_requires=EXTRA_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': ['torvend=torvend:cli']

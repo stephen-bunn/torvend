@@ -7,7 +7,7 @@
 import re
 import contextlib
 
-from torvend import (cli,)
+import torvend.cli
 
 import click.testing
 
@@ -40,7 +40,7 @@ class TestCli(object):
             )),
         )
         with cli_manager(
-            cli.cli,
+            torvend.cli,
             '--quiet', '--no-color', 'list'
         ) as test_invoke:
             assert test_invoke.exit_code == 0
