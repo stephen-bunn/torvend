@@ -13,7 +13,7 @@ colored
 yaspin
 
 # NOTE: required for readthedocs.io
-sphinx-flask-themes
+flask-sphinx-themes
 
 # NOTE: required for twisted on win32
 # pypiwin32
