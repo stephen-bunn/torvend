@@ -30,7 +30,7 @@ def _build_spinner(ctx, text):
     :returns: A spinner context manager
     """
 
-    if ctx.parent.params.get('quiet', False):
+    if ctx.obj.get('quiet', False):
         # NOTE: ExitStack is essentially a null context manager
         return contextlib.ExitStack()
 
@@ -113,7 +113,7 @@ def _build_client(ctx, allowed, ignored):
     return Client(
         allowed=allowed_spiders,
         ignored=ignored_spiders,
-        verbose=ctx.parent.params.get('verbose', False)
+        verbose=ctx.obj.get('verbose', False)
     )
 
 
@@ -308,6 +308,13 @@ def cli(
             for color_name in instance.__dict__.keys():
                 if color_name.isupper():
                     setattr(instance, color_name, '')
+
+    ctx.obj = {}
+    ctx.obj.update({
+        'color': color,
+        'quiet': quiet,
+        'verbose': verbose
+    })
 
 
 @click.command(

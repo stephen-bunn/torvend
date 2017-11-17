@@ -14,6 +14,10 @@ import click.testing
 
 @contextlib.contextmanager
 def cli_manager(command, *args):
+    """ A context manager for CLI invoking.
+    """
+
+    manager = None
     try:
         manager = click.testing.CliRunner()
         yield manager.invoke(command, args)
