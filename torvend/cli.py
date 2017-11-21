@@ -367,17 +367,18 @@ def cli_list(ctx):
     is_flag=True, default=False, help='Display fancy title'
 )
 @click.option(
-    '--copy/--no-copy',
-    default=False, help='Copies the selected torrent to clipboard',
-    show_default=True
+    '--copy',
+    is_flag=True, default=False,
+    help='Copies the selected torrent to clipboard', show_default=True
 )
 @click.option(
-    '--select/--no-select',
-    default=True, help='Enable torrent selection', show_default=True
+    '--select',
+    is_flag=True, default=True,
+    help='Enable torrent selection', show_default=True
 )
 @click.option(
-    '--duplicates/--no-duplicates',
-    default=False,
+    '--duplicates',
+    is_flag=True, default=False,
     help='Allow duplicate torrents to be displayed',
     show_default=True
 )
@@ -470,7 +471,16 @@ def cli_search(
                     '{fore.GREEN}{style.BOLD}✔{style.RESET}'
                 ).format(**COLORED))
             else:
+                print((
+                    'opening magnet for '
+                    '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
+                    '{style.RESET} from {fore.CYAN}{style.BOLD}'
+                    '{selected_torrent[spider]}{style.RESET} ... '
+                ).format(**COLORED, **locals()), end='')
                 _open_magnet(ctx, selected_torrent['magnet'])
+                print((
+                    '{fore.GREEN}{style.BOLD}✔{style.RESET}'
+                ).format(**COLORED))
         else:
             for (torrent, rendered,) in render_iterator:
                 print(rendered)
