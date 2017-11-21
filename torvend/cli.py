@@ -372,11 +372,6 @@ def cli_list(ctx):
     help='Copies the selected torrent to clipboard', show_default=True
 )
 @click.option(
-    '--select',
-    is_flag=True, default=True,
-    help='Enable torrent selection', show_default=True
-)
-@click.option(
     '--duplicates',
     is_flag=True, default=False,
     help='Allow duplicate torrents to be displayed',
@@ -415,7 +410,7 @@ def cli_list(ctx):
 def cli_search(
     ctx,
     allowed=None, ignored=None, spinner=None, fancy=None,
-    copy=None, select=None, duplicates=None,
+    copy=None, duplicates=None,
     results=None, format=None, to_json=None, sort=None,
     select_best=None,
     query=None
@@ -456,7 +451,7 @@ def cli_search(
             )
             for (torrent, _,) in render_iterator:
                 torrent_exporter.export_item(torrent)
-        elif select:
+        else:
             selected_torrent = _select_torrent(ctx, render_iterator)
             if copy:
                 print((
@@ -481,9 +476,6 @@ def cli_search(
                 print((
                     '{fore.GREEN}{style.BOLD}✔{style.RESET}'
                 ).format(**COLORED))
-        else:
-            for (torrent, rendered,) in render_iterator:
-                print(rendered)
 
     except (KeyboardInterrupt, EOFError):
         pass
