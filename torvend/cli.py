@@ -12,7 +12,7 @@ import webbrowser
 import subprocess
 import contextlib
 
-from . import (__version__,)
+from . import (__version__, const,)
 
 import click
 import yaspin
@@ -233,27 +233,27 @@ def _select_torrent(ctx, render_iterator):
         ).format(**locals()) + rendered)
         displayed.append(torrent)
 
-    try:
-        while True:
+    while True:
+        try:
             selected_idx = input((
                 '{fore.WHITE}{style.BOLD}[select torrent]:{style.RESET} '
             ).format(**COLORED)).strip()
-            if selected_idx.isdigit():
-                selected_idx = int(selected_idx)
-                if selected_idx >= 0 and selected_idx < result_count:
-                    return displayed[selected_idx]
-                else:
-                    print((
-                        '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
-                        '{fore.RED} is out of range{style.RESET}'
-                    ).format(**COLORED, **locals()))
+        except (KeyboardInterrupt, EOFError):
+            sys.exit(0)
+        if selected_idx.isdigit():
+            selected_idx = int(selected_idx)
+            if selected_idx >= 0 and selected_idx < result_count:
+                return displayed[selected_idx]
             else:
                 print((
                     '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
-                    '{fore.RED} is not a valid digit{style.RESET}'
+                    '{fore.RED} is out of range{style.RESET}'
                 ).format(**COLORED, **locals()))
-    except (KeyboardInterrupt, EOFError):
-        pass
+        else:
+            print((
+                '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
+                '{fore.RED} is not a valid digit{style.RESET}'
+            ).format(**COLORED, **locals()))
 
 
 def _validate_spinner(ctx, param, value):
@@ -479,6 +479,13 @@ def cli_search(
 
     except (KeyboardInterrupt, EOFError):
         pass
+    except Exception as exc:
+        print((
+            '{fore.RED}{style.BOLD}ERROR{style.RESET}{fore.RED}: '
+            'view log ({const.log_dir}{sep}{const.module_name}.log)'
+            '{style.RESET}'
+        ).format(sep=os.sep, const=const, **COLORED,))
+        sys.exit(0)
 
 
 # add click commands to cli group

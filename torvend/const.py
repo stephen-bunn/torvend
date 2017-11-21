@@ -7,6 +7,7 @@
 import os
 import sys
 import logging
+import tempfile
 import traceback
 
 from . import (__version__,)
@@ -90,7 +91,10 @@ class _const(object):
         """
 
         if not hasattr(self, '_log_dir'):
-            self._log_dir = os.path.join(self.parent_dir, 'logs')
+            self._log_dir = os.path.join(
+                tempfile.gettempdir(),
+                self.module_name
+            )
         return self._log_dir
 
     @property
