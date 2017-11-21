@@ -4,6 +4,7 @@
 # Copyright (c) 2017 Stephen Bunn (stephen@bunn.io)
 # MIT License <https://opensource.org/licenses/MIT>
 
+import re
 import abc
 import math
 import socket
@@ -154,6 +155,20 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
         """
 
         return bs4.BeautifulSoup(content, parser)
+
+    def parse_infohash(self, magnet_link):
+        """ Parses the infohash from a given magnet link.
+
+        :param str magnet_link: The torrents magnet link
+        :returns: Returns the infohash
+        :rtype: str
+        """
+
+        if not hasattr(self, '_infohash_regex'):
+            self._infohash_regex = re.compile(
+                r'^magnet:\?(?:xt)=[a-z:]+([a-zA-Z0-9]+)&?.*$'
+            )
+        return self._infohash_regex.match(magnet_link).groups()[0]
 
     def parse_datetime(self, text, formats=[]):
         """ Guesses a datetime from some given text.
