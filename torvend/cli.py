@@ -4,8 +4,12 @@
 # Copyright (c) 2017 Stephen Bunn (stephen@bunn.io)
 # MIT License <https://opensource.org/licenses/MIT>
 
+import os
 import sys
 import inspect
+import platform
+import webbrowser
+import subprocess
 import contextlib
 
 from . import (__version__,)
@@ -20,6 +24,23 @@ COLORED = {'fore': fore, 'back': back, 'style': style}
 CONTEXT_SETTINGS = dict(
     help_option_names=['-h', '--help']
 )
+
+
+def _open_magnet(ctx, link):
+    """ Opens a magnet link in the default application.
+
+    :param click.Context ctx: The calling clicks current context
+    :param str link: The magnet link to open
+    :rtype: None
+    """
+
+    system = platform.system().lower()
+    if system == 'darwin':
+        webbrowser.open(link)
+    elif system == 'linux':
+        subprocess.Popen(['xdg-open', link]).wait()
+    else:
+        os.startfile(link)
 
 
 def _build_spinner(ctx, text):
@@ -220,19 +241,7 @@ def _select_torrent(ctx, render_iterator):
             if selected_idx.isdigit():
                 selected_idx = int(selected_idx)
                 if selected_idx >= 0 and selected_idx < result_count:
-                    selected_torrent = displayed[selected_idx]
-                    print((
-                        'copying magnet for '
-                        '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
-                        '{style.RESET} from {fore.CYAN}{style.BOLD}'
-                        '{selected_torrent[spider]}{style.RESET} '
-                        'to clipboard ... '
-                    ).format(**COLORED, **locals()), end='')
-                    pyperclip.copy(selected_torrent['magnet'])
-                    print((
-                        '{fore.GREEN}{style.BOLD}✔{style.RESET}'
-                    ).format(**COLORED))
-                    break
+                    return displayed[selected_idx]
                 else:
                     print((
                         '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
@@ -358,6 +367,11 @@ def cli_list(ctx):
     is_flag=True, default=False, help='Display fancy title'
 )
 @click.option(
+    '--copy/--no-copy',
+    default=False, help='Copies the selected torrent to clipboard',
+    show_default=True
+)
+@click.option(
     '--select/--no-select',
     default=True, help='Enable torrent selection', show_default=True
 )
@@ -400,7 +414,7 @@ def cli_list(ctx):
 def cli_search(
     ctx,
     allowed=None, ignored=None, spinner=None, fancy=None,
-    select=None, duplicates=None,
+    copy=None, select=None, duplicates=None,
     results=None, format=None, to_json=None, sort=None,
     select_best=None,
     query=None
@@ -442,7 +456,21 @@ def cli_search(
             for (torrent, _,) in render_iterator:
                 torrent_exporter.export_item(torrent)
         elif select:
-            _select_torrent(ctx, render_iterator)
+            selected_torrent = _select_torrent(ctx, render_iterator)
+            if copy:
+                print((
+                    'copying magnet for '
+                    '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
+                    '{style.RESET} from {fore.CYAN}{style.BOLD}'
+                    '{selected_torrent[spider]}{style.RESET} '
+                    'to clipboard ... '
+                ).format(**COLORED, **locals()), end='')
+                pyperclip.copy(selected_torrent['magnet'])
+                print((
+                    '{fore.GREEN}{style.BOLD}✔{style.RESET}'
+                ).format(**COLORED))
+            else:
+                _open_magnet(ctx, selected_torrent['magnet'])
         else:
             for (torrent, rendered,) in render_iterator:
                 print(rendered)
