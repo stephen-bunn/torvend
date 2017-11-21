@@ -1,7 +1,7 @@
 =======
 Torvend
 =======
-A framework for public torrent vendor scrapers
+A command line utility for searching for torrents across many popular sharing sites
 
 |
 
