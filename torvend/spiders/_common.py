@@ -166,7 +166,7 @@ class BaseSpider(scrapy.Spider, meta.Loggable, abc.ABC):
 
         if not hasattr(self, '_infohash_regex'):
             self._infohash_regex = re.compile(
-                r'^magnet:\?(?:xt)=[a-z:]+([a-zA-Z0-9]+)&?.*$'
+                r'^magnet:\?(?:xt)=[a-z:]+:([a-zA-Z0-9]+)&?.*$'
             )
         return self._infohash_regex.match(magnet_link).groups()[0]
 
