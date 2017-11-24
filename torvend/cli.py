@@ -26,6 +26,41 @@ CONTEXT_SETTINGS = dict(
 )
 
 
+def _expand_ranges(ranges_text, delimiter=',', indicator='-'):
+    """ Expands a range text to a list of integers.
+
+    For example:
+
+    .. code-block:: python
+
+        range_text = '1,2-4,7'
+        print(_expand_ranges(range_text)) # [1, 2, 3, 4, 7]
+
+    :param str ranges_text: The text of ranges to expand
+    :returns: A list of integers
+    :rtype: list[int]
+    """
+
+    results = set()
+    for group in filter(None, ranges_text.split(delimiter)):
+        group = group.strip()
+        if indicator not in group:
+            if not group.isdigit():
+                raise ValueError((
+                    "group '{group}' could not be interpreted as a valid digit"
+                ).format(**locals()))
+            results.add(int(group))
+        else:
+            (start, finish,) = list(filter(None, group.split(indicator)))
+            if not start.isdigit() or not finish.isdigit():
+                raise ValueError((
+                    "group '{group}' could not be interpreted as a valid range"
+                ).format(**locals()))
+            for entry in range(int(start), (int(finish) + 1), 1):
+                results.add(entry)
+    return sorted(list(results))
+
+
 def _open_magnet(ctx, link):
     """ Opens a magnet link in the default application.
 
@@ -235,24 +270,25 @@ def _select_torrent(ctx, render_iterator):
 
     while True:
         try:
-            selected_idx = input((
+            selection_groups = input((
                 '{fore.WHITE}{style.BOLD}[select torrent]:{style.RESET} '
             ).format(**COLORED)).strip()
         except (KeyboardInterrupt, EOFError):
             sys.exit(0)
-        if selected_idx.isdigit():
-            selected_idx = int(selected_idx)
-            if selected_idx >= 0 and selected_idx < result_count:
-                return displayed[selected_idx]
-            else:
-                print((
-                    '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
-                    '{fore.RED} is out of range{style.RESET}'
-                ).format(**COLORED, **locals()))
+        try:
+            selected_idxs = _expand_ranges(selection_groups)
+        except (ValueError,) as exc:
+            print((
+                '{fore.RED}{exc}{style.RESET}'
+            ).format(**COLORED, **locals()))
+        if selected_idxs[0] >= 0 and selected_idxs[-1] < result_count:
+            for selected in selected_idxs:
+                yield displayed[selected]
+            return
         else:
             print((
                 '{fore.RED}{style.BOLD}{selected_idx}{style.RESET}'
-                '{fore.RED} is not a valid digit{style.RESET}'
+                '{fore.RED} is out of range{style.RESET}'
             ).format(**COLORED, **locals()))
 
 
@@ -452,30 +488,34 @@ def cli_search(
             for (torrent, _,) in render_iterator:
                 torrent_exporter.export_item(torrent)
         else:
-            selected_torrent = _select_torrent(ctx, render_iterator)
+            selected = _select_torrent(ctx, render_iterator)
             if copy:
-                print((
-                    'copying magnet for '
-                    '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
-                    '{style.RESET} from {fore.CYAN}{style.BOLD}'
-                    '{selected_torrent[spider]}{style.RESET} '
-                    'to clipboard ... '
-                ).format(**COLORED, **locals()), end='')
-                pyperclip.copy(selected_torrent['magnet'])
-                print((
-                    '{fore.GREEN}{style.BOLD}✔{style.RESET}'
-                ).format(**COLORED))
+                to_copy = []
+                for selected_torrent in selected:
+                    print((
+                        'copying magnet for '
+                        '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
+                        '{style.RESET} from {fore.CYAN}{style.BOLD}'
+                        '{selected_torrent[spider]}{style.RESET} '
+                        'to clipboard ... '
+                    ).format(**COLORED, **locals()), end='')
+                    to_copy.append(selected_torrent['magnet'])
+                    print((
+                        '{fore.GREEN}{style.BOLD}✔{style.RESET}'
+                    ).format(**COLORED))
+                pyperclip.copy('\n'.join(to_copy))
             else:
-                print((
-                    'opening magnet for '
-                    '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
-                    '{style.RESET} from {fore.CYAN}{style.BOLD}'
-                    '{selected_torrent[spider]}{style.RESET} ... '
-                ).format(**COLORED, **locals()), end='')
-                _open_magnet(ctx, selected_torrent['magnet'])
-                print((
-                    '{fore.GREEN}{style.BOLD}✔{style.RESET}'
-                ).format(**COLORED))
+                for selected_torrent in selected:
+                    print((
+                        'opening magnet for '
+                        '{fore.GREEN}{style.BOLD}{selected_torrent[name]}'
+                        '{style.RESET} from {fore.CYAN}{style.BOLD}'
+                        '{selected_torrent[spider]}{style.RESET} ... '
+                    ).format(**COLORED, **locals()), end='')
+                    _open_magnet(ctx, selected_torrent['magnet'])
+                    print((
+                        '{fore.GREEN}{style.BOLD}✔{style.RESET}'
+                    ).format(**COLORED))
 
     except (KeyboardInterrupt, EOFError):
         pass
