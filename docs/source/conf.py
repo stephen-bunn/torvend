@@ -20,8 +20,7 @@
 import os
 import sys
 
-import flask_sphinx_themes
-
+import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -91,7 +90,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'flask_sphinx_themes.pygments.FlaskyStyle'
+# pygments_style = 'flask_sphinx_themes.pygments.FlaskyStyle'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -102,7 +101,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme = 'flask'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -186,4 +186,4 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3/': None}
+intersphinx_mapping = {'https://docs.python.org/3.6/': None}

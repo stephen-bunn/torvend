@@ -3,7 +3,7 @@ flake8
 sphinx
 cprofilev
 sphinx-click
-flask-sphinx-themes
+sphinx_rtd_theme
 coverage
 pytest
 pytest-cov
