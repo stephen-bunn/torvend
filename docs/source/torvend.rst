@@ -34,7 +34,7 @@ torvend\.items
 torvend\.spiders
 ----------------
 
-Below are a list of currently included spiders that can be utilized by :class:`~torvend.client.Client`.
+Below are a list of currently included spiders that can be utilized by :class:`~torvend.client.TorvendClient`.
 These spiders are just `scrapy <https://scrapy.org>`_ spiders built to yield as many torrent items as possible until a given results threshold is met.
 
 .. important:: These spiders are very dependent on the responses made from search requests by the spider.

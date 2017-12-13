@@ -8,7 +8,7 @@ import inspect
 import contextlib
 
 import torvend.spiders
-from torvend.client import (Client,)
+from torvend.client import (TorvendClient,)
 
 import pytest
 
@@ -18,14 +18,14 @@ def client_manager(*args, **kwargs):
     """ A context manager for client initialization.
     """
 
-    client = Client(*args, **kwargs)
+    client = TorvendClient(*args, **kwargs)
     try:
         yield client
     finally:
         del client
 
 
-class TestClient(object):
+class TestTorvendClient(object):
     """ A colleciton of client testcases.
     """
 

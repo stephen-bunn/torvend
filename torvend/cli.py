@@ -139,7 +139,7 @@ def _build_client(ctx, allowed, ignored):
 
     # NOTE: local import to speed up cli tool
     from . import (spiders,)
-    from .client import (Client,)
+    from .client import (TorvendClient,)
 
     (allowed, ignored,) = (
         parse_spiders(allowed),
@@ -166,7 +166,7 @@ def _build_client(ctx, allowed, ignored):
         ).format(**COLORED))
         ignored_spiders = []
 
-    return Client(
+    return TorvendClient(
         allowed=allowed_spiders,
         ignored=ignored_spiders,
         verbose=ctx.obj.get('verbose', False)

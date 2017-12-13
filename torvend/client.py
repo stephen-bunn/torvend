@@ -12,7 +12,7 @@ import scrapy.crawler
 import scrapy.signals
 
 
-class Client(meta.Loggable):
+class TorvendClient(meta.Loggable):
     """ The client for discovering torrents.
     """
 

@@ -3,7 +3,7 @@ Usage
 =====
 
 Using Torvend in your own applications is *really* simple and straightforward.
-I've removed most of the complexity by provided a :class:`~torvend.client.Client` object which performs the torrent searching task optimally right out of the box.
+I've removed most of the complexity by provided a :class:`~torvend.client.TorvendClient` object which performs the torrent searching task optimally right out of the box.
 
 
 .. _usage-basic-initialization:
@@ -14,34 +14,34 @@ The most simple form of initializing a client can be done like this:
 
 .. code-block:: python
 
-   from torvend.client import Client
+   from torvend.client import TorvendClient
 
-   my_client = Client()
+   my_client = TorvendClient()
 
 
 .. note:: The only subpackage exposed by the :mod:`torvend` package is the command line package ``cli``.
-   This means that you will have to specify the fully qualified name to import the :class:`~torvend.client.Client` object.
+   This means that you will have to specify the fully qualified name to import the :class:`~torvend.client.TorvendClient` object.
 
    .. code-block:: python
 
       # INCORRECT
       import torvend
-      my_client = torvend.client.Client()
+      my_client = torvend.client.TorvendClient()
 
       # CORRECT
       import torvend.client
-      my_client = torvend.client.Client()
+      my_client = torvend.client.TorvendClient()
 
       # CORRECT
-      from torvend.client import Client
-      my_client = Client()
+      from torvend.client import TorvendClient
+      my_client = TorvendClient()
 
 
 .. _usage-advanced-initialization:
 
 Advanced Initialization
 '''''''''''''''''''''''
-There are serveral available options that can be specified when initializing a new :class:`~torvend.client.Client`.
+There are serveral available options that can be specified when initializing a new :class:`~torvend.client.TorvendClient`.
 
 
 .. _usage-specifying-spiders:
@@ -57,7 +57,7 @@ For example, if I wanted to only search torrents using the only the spiders :cla
 
    from torvend.spiders import (ThePirateBaySpider, Torrentz2Spider)
 
-   my_client = Client(allowed=[ThePirateBaySpider, Torrentz2Spider])
+   my_client = TorvendClient(allowed=[ThePirateBaySpider, Torrentz2Spider])
 
 
 However, if I only wanted to **not** receive torrents from :class:`~torvend.spiders.limetorrents.LimeTorrentsSpider`, I could specify that spider in the ``ignored`` list.
@@ -66,7 +66,7 @@ However, if I only wanted to **not** receive torrents from :class:`~torvend.spid
 
    from torvend.spiders import (LimeTorrentsSpider,)
 
-   my_client = Client(ignored=[LimeTorrentsSpider])
+   my_client = TorvendClient(ignored=[LimeTorrentsSpider])
 
 
 .. important:: The use of both the ``allowed`` and ``ignored`` fields in the same initialization is not permitted.
@@ -82,7 +82,7 @@ For example, if I wanted to use a different name for the scrapy bot, I could pas
 
 .. code-block:: python
 
-   my_client = Client(settings={'BOT_NAME': 'my-bot'})
+   my_client = TorvendClient(settings={'BOT_NAME': 'my-bot'})
 
 
 If you need a reference for available scrapy settings, `click here <https://doc.scrapy.org/en/latest/topics/settings.html#built-in-settings-reference>`_.
@@ -92,19 +92,19 @@ If you need a reference for available scrapy settings, `click here <https://doc.
 
 Verbose Logging
 ~~~~~~~~~~~~~~~
-You can enable verbose logging by simply passing the ``verbose`` flag to the :class:`~torvend.client.Client` initialization.
+You can enable verbose logging by simply passing the ``verbose`` flag to the :class:`~torvend.client.TorvendClient` initialization.
 
 .. code-block:: python
 
-   my_client = Client(verbose=True)
+   my_client = TorvendClient(verbose=True)
 
 
 .. _usage-starting-spiders:
 
 Starting Spiders
 ''''''''''''''''
-You can start up the search process through the :class:`~torvend.client.Client` by starting the spiders.
-Lucky for you, I've compressed the logic into the :func:`~torvend.client.Client.search` method.
+You can start up the search process through the :class:`~torvend.client.TorvendClient` by starting the spiders.
+Lucky for you, I've compressed the logic into the :func:`~torvend.client.TorvendClient.search` method.
 
 Because this web-scraper is asynchronous, you need to not only supply a query to the search method, but also a callback function.
 
@@ -115,7 +115,7 @@ Because this web-scraper is asynchronous, you need to not only supply a query to
       print(('received torrent {item}').format(item=item))
 
 
-   my_client = Client()
+   my_client = TorvendClient()
    my_client.search('my query', torrent_callback)
 
 
