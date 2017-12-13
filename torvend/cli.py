@@ -14,6 +14,7 @@ import contextlib
 
 from . import (__version__, const,)
 
+import furl
 import click
 import yaspin
 import yaspin.spinners
@@ -199,7 +200,7 @@ def _search_torrents(ctx, client, query):
     """
 
     result_count = ctx.params.get('results', 25)
-    discovered = set()
+    (discovered, merged,) = (set(), set(),)
 
     def _torrent_callback(item, **kwargs):
         discovered.add(item)
@@ -208,10 +209,34 @@ def _search_torrents(ctx, client, query):
         '{style.BOLD} searching for '
         '{fore.GREEN}{query}{style.RESET} ...'
     ).format(**COLORED, **locals())):
+        # perform the actual search
         client.search(query, _torrent_callback, results=result_count)
 
+    with _build_spinner(ctx, (
+        '{style.BOLD} merging trackers for {fore.GREEN}{discovered_count}'
+        '{style.RESET} {style.BOLD}results{style.RESET} ...'
+    ).format(discovered_count=len(discovered), **COLORED, **locals())):
+        # create mappings dictionary of hashes and trackers
+        mappings = {}
+        for torrent in discovered:
+            if torrent['hash'] not in mappings:
+                mappings[torrent['hash']] = set()
+            for tracker in furl.furl(torrent['magnet']).args.getlist('tr'):
+                mappings[torrent['hash']].add(tracker)
+
+        # update torrent item magnets with full mappings dictionary
+        for torrent in discovered:
+            if torrent['hash'] in mappings:
+                merged_trackers = furl.furl(torrent['magnet'])\
+                    .remove('tr')\
+                    .add({'tr': list(mappings[torrent['hash']])}).url
+                torrent['magnet'] = (
+                    'magnet:{merged_trackers}'
+                ).format(**locals())
+                merged.add(torrent)
+
     for torrent in _sort_torrents(
-        ctx, list(discovered),
+        ctx, list(merged),
         ctx.params.get('sort', 'seeders')
     ):
         yield torrent
