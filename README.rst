@@ -3,7 +3,7 @@
    :width: 800
    :align: center
 
-A command line utility for searching for torrents across many popular sharing sites
+A framework and CLI utility for quickly searching public torrent vendors.
 
 |
 
