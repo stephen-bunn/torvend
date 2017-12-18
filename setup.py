@@ -23,6 +23,9 @@ REQUIRES = [
     'colored',
     'yaspin',
 ]
+SETUP_REQUIRES = [
+    'pkutils',
+]
 EXTRAS_REQUIRE = {
     'dev': [
         'pytest',
@@ -97,6 +100,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=REQUIRES,
     extras_require=EXTRAS_REQUIRE,
+    setup_requires=SETUP_REQUIRES,
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': ['torvend=torvend:cli']
