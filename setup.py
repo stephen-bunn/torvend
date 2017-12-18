@@ -25,6 +25,7 @@ REQUIRES = [
 ]
 SETUP_REQUIRES = [
     'pkutils',
+    'cryptography',
 ]
 EXTRAS_REQUIRE = {
     'dev': [
