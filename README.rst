@@ -1,6 +1,8 @@
-=======
-Torvend
-=======
+.. image:: https://github.com/stephen-bunn/torvend/raw/master/docs/source/_static/logo.png
+   :alt: Torvend Logo
+   :width: 800
+   :align: center
+
 A command line utility for searching for torrents across many popular sharing sites
 
 |
@@ -51,6 +53,8 @@ A command line utility for searching for torrents across many popular sharing si
 Command Line
 ------------
 
+Search for torrents through the command-line...
+
 .. image:: docs/source/_static/usage.gif
    :align: center
 
@@ -58,6 +62,8 @@ Command Line
 
 Usage
 -----
+
+Search for torrents in your own applications...
 
 .. code-block:: python
 
