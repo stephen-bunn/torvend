@@ -1,10 +1,3 @@
-=======
-Torvend
-=======
-A framework and CLI utility for quickly searching public torrent vendors.
-
-|
-
 .. image:: https://img.shields.io/pypi/v/torvend.svg
    :target: https://pypi.org/project/torvend/
    :alt: PyPi Status
