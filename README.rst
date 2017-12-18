@@ -64,7 +64,8 @@ Usage
 -----
 
 | Search for torrents in your own applications...
-| Read about more complex usage in the `documentation <https://torvend.readthedocs.io/en/latest/>`_
+| Read about more complex usage in the `documentation <https://torvend.readthedocs.io/en/latest/>`_.
+
 
 .. code-block:: python
 
