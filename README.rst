@@ -3,8 +3,6 @@
    :width: 800
    :align: center
 
-A framework and CLI utility for quickly searching public torrent vendors.
-
 |
 
 .. image:: https://img.shields.io/pypi/v/torvend.svg
