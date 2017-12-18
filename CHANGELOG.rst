@@ -8,3 +8,25 @@ Changelog
 
 *unreleased*
 ------------
+* WIP
+
+
+`0.0.0`_ (*2017-12-18*)
+-----------------------
+*this is the first pre-alpha release, so the only other prior change history is the git commit log*
+
+* added support for the following spiders
+   * thepiratebay
+   * torrentz2
+   * 1337x
+   * limetorrents
+   * torlock
+   * skytorrents
+   * idope
+* added full framework structure
+* added full documentation structure
+* added command line interface
+
+
+
+.. _0.0.0: https://github.com/stephen-bunn/torvend/releases/tag/v0.0.0
