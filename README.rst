@@ -5,6 +5,22 @@ A command line utility for searching for torrents across many popular sharing si
 
 |
 
+.. image:: https://img.shields.io/pypi/v/torvend.svg
+   :target: https://pypi.org/project/torvend/
+   :alt: PyPi Status
+
+.. image:: https://img.shields.io/pypi/pyversions/torvend.svg
+   :target: https://pypi.org/project/torvend/
+   :alt: Supported Versions
+
+.. image:: https://img.shields.io/pypi/status/torvend.svg
+   :target: https://pypi.org/project/torvend/
+   :alt: Release Status
+
+.. image:: https://img.shields.io/github/last-commit/stephen-bunn/torvend.svg
+   :target: https://github.com/stephen-bunn/torvend
+   :alt: Last Commit
+
 .. image:: https://img.shields.io/github/license/stephen-bunn/torvend.svg
    :target: https://github.com/stephen-bunn/torvend/blob/master/LICENSE
    :alt: License
@@ -31,5 +47,29 @@ A command line utility for searching for torrents across many popular sharing si
 
 |
 
+
+Command Line
+------------
+
 .. image:: docs/source/_static/usage.gif
    :align: center
+
+
+
+Usage
+-----
+
+.. code-block:: python
+
+   from torvend.client import (TorvendClient,)
+
+   discovered_torrents = []
+
+   def torrent_callback(item, **kwargs):
+      discovered_torrents.append(item)
+
+
+   client = TorvendClient()
+   client.search('my query', torrent_callback)
+
+   print(discovered_torrents)

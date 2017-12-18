@@ -1,9 +1,25 @@
 =======
 Torvend
 =======
-A command line utility for searching for torrents across many popular sharing sites.
+A framework and CLI utility for quickly searching public torrent vendors.
 
 |
+
+.. image:: https://img.shields.io/pypi/v/torvend.svg
+   :target: https://pypi.org/project/torvend/
+   :alt: PyPi Status
+
+.. image:: https://img.shields.io/pypi/pyversions/torvend.svg
+   :target: https://pypi.org/project/torvend/
+   :alt: Supported Versions
+
+.. image:: https://img.shields.io/pypi/status/torvend.svg
+   :target: https://pypi.org/project/torvend/
+   :alt: Release Status
+
+.. image:: https://img.shields.io/github/last-commit/stephen-bunn/torvend.svg
+   :target: https://github.com/stephen-bunn/torvend
+   :alt: Last Commit
 
 .. image:: https://img.shields.io/github/license/stephen-bunn/torvend.svg
    :target: https://github.com/stephen-bunn/torvend/blob/master/LICENSE
@@ -29,32 +45,31 @@ A command line utility for searching for torrents across many popular sharing si
    :target: https://saythanks.io/to/stephen-bunn
    :alt: Say Thanks
 
-Documentation
--------------
+
+User Documentation
+------------------
 
 .. toctree::
    :maxdepth: 2
 
    getting-started
    usage
+   changelog
+
+
+Project Reference
+-----------------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Project
 
    contributing
-   changelog
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Reference
-
    command-line
    torvend
 
 
-Indices and tables
-------------------
+Indices
+-------
 
 * :ref:`genindex`
 * :ref:`modindex`

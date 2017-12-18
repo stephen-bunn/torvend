@@ -26,6 +26,10 @@ indent_size = 2
 [*.{bat}]
 end_of_line = crlf
 
+# license config
+[LICENSE]
+insert_final_newline = false
+
 # make config
 [Makefile]
 indent_style = tab

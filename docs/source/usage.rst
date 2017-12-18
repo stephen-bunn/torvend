@@ -70,7 +70,7 @@ However, if I only wanted to **not** receive torrents from :class:`~torvend.spid
 
 
 .. important:: The use of both the ``allowed`` and ``ignored`` fields in the same initialization is not permitted.
-   This is because it makes no sense to allow some spiders to run and ignore *some* others (**the allowed list already handles this**).
+   This is because it makes no sense to allow **only** some spiders to run and ignore others (**the allowed list already ignores them**).
 
 
 .. _usage-customize-scrapy:
@@ -120,4 +120,4 @@ Because this web-scraper is asynchronous, you need to not only supply a query to
 
 
 .. important:: This callback **must** specify the positional argument ``item`` and the ``**kwargs`` dictionary.
-   Note that the positional argument must be named ``item`` due to how scrapy handles it's signals.
+   Note that **the positional argument must be named "item"** due to how scrapy handles it's signals.

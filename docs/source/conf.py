@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # torvend documentation build configuration file, created by
 # sphinx-quickstart on Thu Nov  9 12:02:41 2017.
 #
@@ -20,7 +17,10 @@
 import os
 import sys
 
-import sphinx_rtd_theme
+sys.path.insert(0, os.path.join(os.path.abspath('.'), 'themes'))
+sys.path.insert(0, os.path.abspath('.'))
+
+from themes import (pocoo_theme_support,)
 
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -47,6 +47,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx_click.ext',
+    'clickdoctools',
 ]
 
 autodoc_member_order = 'bysource'
@@ -90,7 +91,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-# pygments_style = 'flask_sphinx_themes.pygments.FlaskyStyle'
+pygments_style = 'pocoo_theme_support.PocooStyle'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -101,8 +102,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'click'
+html_theme_path = ['themes']
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

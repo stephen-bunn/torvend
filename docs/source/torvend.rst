@@ -75,3 +75,17 @@ limetorrents
     :members:
     :undoc-members:
     :show-inheritance:
+
+skytorrents
+'''''''''''
+.. automodule:: torvend.spiders.skytorrents
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+torlock
+'''''''
+.. automodule:: torvend.spiders.torlock
+    :members:
+    :undoc-members:
+    :show-inheritance:

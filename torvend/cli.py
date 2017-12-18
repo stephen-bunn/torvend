@@ -356,17 +356,17 @@ def cli(
     ctx,
     color=None, quiet=None, verbose=None
 ):
-    """\b
-    ▄▄▄▄▄      ▄▄▄   ▌ ▐·▄▄▄ . ▐ ▄ ·▄▄▄▄
-    •██  ▪     ▀▄ █·▪█·█▌▀▄.▀·•█▌▐███▪ ██
-     ▐█.▪ ▄█▀▄ ▐▀▀▄ ▐█▐█•▐▀▀▪▄▐█▐▐▌▐█· ▐█▌
-     ▐█▌·▐█▌.▐▌▐█•█▌ ███ ▐█▄▄▌██▐█▌██. ██
-     ▀▀▀  ▀█▄▀▪.▀  ▀. ▀   ▀▀▀ ▀▀ █▪▀▀▀▀▀•
+    """ The command-line interface to the Torvend framework.
 
-    A set of torrent vendor scrapers (by Stephen Bunn).
+    \b
+    Commands:
+    \b
+        torvend list           - (lists available spiders)
+        torvend search "query" - (uses spiders to search for torrents)
     """
 
     if ctx.invoked_subcommand is None:
+        click.echo(__version__.__fancy__)
         click.echo(ctx.get_usage())
 
     if not color:

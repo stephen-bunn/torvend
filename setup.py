@@ -102,9 +102,13 @@ setuptools.setup(
         'console_scripts': ['torvend=torvend:cli']
     },
     keywords=[
-        'search',
         'web-scraping',
         'torrent',
+        'search',
+        'python3',
+        'asynchronous',
+        'command-line',
+        'framework',
     ],
     python_requires='>=3.5',
     classifiers=[
