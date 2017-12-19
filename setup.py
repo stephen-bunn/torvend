@@ -25,7 +25,6 @@ REQUIRES = [
 ]
 SETUP_REQUIRES = [
     'pkutils',
-    'cryptography',
 ]
 EXTRAS_REQUIRE = {
     'dev': [
@@ -120,7 +119,6 @@ setuptools.setup(
         'Development Status :: 2 - Pre-Alpha',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: Implementation :: CPython',
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
