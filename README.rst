@@ -53,9 +53,10 @@ Command Line
 
 Search for torrents through the command-line...
 
-.. image:: docs/source/_static/usage.gif
+.. image:: https://github.com/stephen-bunn/torvend/raw/master/docs/source/_static/usage.gif
+   :alt: Torvend Usage
+   :width: 800
    :align: center
-
 
 
 Usage
