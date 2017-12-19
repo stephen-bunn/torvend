@@ -11,6 +11,11 @@ Changelog
 * WIP
 
 
+`0.0.1`_ (*2017-12-19*)
+-----------------------
+* fixed readme.rst for PyPi usage
+
+
 `0.0.0`_ (*2017-12-19*)
 -----------------------
 *this is the first pre-alpha release, so the only other prior change history is the git commit log*
@@ -30,3 +35,4 @@ Changelog
 
 
 .. _0.0.0: https://github.com/stephen-bunn/torvend/releases/tag/v0.0.0
+.. _0.0.1: https://github.com/stephen-bunn/torvend/releases/tag/v0.0.1
