@@ -11,7 +11,7 @@ Changelog
 * WIP
 
 
-`0.0.0`_ (*2017-12-18*)
+`0.0.0`_ (*2017-12-19*)
 -----------------------
 *this is the first pre-alpha release, so the only other prior change history is the git commit log*
 
