@@ -359,7 +359,7 @@ def cli(
     """ The command-line interface to the Torvend framework.
 
     \b
-    Commands:
+    Usage:
     \b
         torvend list           - (lists available spiders)
         torvend search "query" - (uses spiders to search for torrents)

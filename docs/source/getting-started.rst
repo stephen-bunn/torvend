@@ -11,19 +11,20 @@ This is accomplished by leveraging the `scrapy <https://scrapy.org>`_ package to
 
 Installation
 ------------
-Since Torvend is not yet on `PyPi <https://pypi.org/>`_, the only way to install it is by running the following commands:
+Torvend is available on `PyPi <https://pypi.org/>`_.
+So you can easily install the torvend package with the following command:
 
 .. code-block:: bash
 
-   pip install --user pipenv --upgrade
-   git clone https://github.com/stephen-bunn/torvend.git
-   cd torvend
-   pipenv install --three
-   pipenv run setup.py sdist
-   pip install dist/torvend-0.0.0.tar.gz # version number may be different
+   pip install --user torvend
 
 
 This will install the Torvend package as well as give you access to the embeded command line utility!
+
+.. note:: If you do not have access to the torvend command line utility after using the above command, make sure that the ``~/.local/bin/`` directory is included in your ``$PATH`` environment varaible.
+
+.. important:: Torvend requires `Python 3.5+ <https://www.python.org/downloads/>`_!
+   If you haven't yet started using Python 3, you should definitely start since **many** projects are fully dropping support for Python 2.7.
 
 
 .. _getting_started-command-line:
@@ -33,35 +34,55 @@ Command Line
 Using Torvend from the command line is quick and easy.
 The command line tool should be able to be accessed by simply executing ``torvend`` in a shell.
 
-*If for some reason your shell can't find torvend, make sure that your Python scripts directory is on your $PATH.*
-
 
 .. image:: ./_static/usage.gif
    :align: center
 
 
+You can check if torvend is available by first just running ``torvend`` in your shell.
+
 .. code-block:: text
 
    $ torvend
+
+         o
+     .od888bo.
+    /         \    _____                              _
+   |oo      oo8|  |_   _|                            | |
+   |88888888888|    | | ___  _ ____   _____ _ __   __| |
+    \888888888/     | |/ _ \| '__\ \ / / _ \ '_ \ / _` |
+     /`-----'\      | | (_) | |   \ V /  __/ | | | (_| |
+    |  | | |  |     \_/\___/|_|    \_/ \___|_| |_|\__,_|
+    |  |(/)|  |
+    |  |[_]|  |    A set of torrent vendor scrapers (by Stephen Bunn)
+   (`--.___.--')
+    `-._____.-'
+
    Usage: torvend [OPTIONS] COMMAND [ARGS]...
+
+
+-------
+
+You can view the help text by passing either the ``-h`` or ``--help`` flags to ``torvend``.
+
+.. code-block:: text
 
    $ torvend --help
    Usage: torvend [OPTIONS] COMMAND [ARGS]...
 
-     ▄▄▄▄▄      ▄▄▄   ▌ ▐·▄▄▄ . ▐ ▄ ·▄▄▄▄
-     •██  ▪     ▀▄ █·▪█·█▌▀▄.▀·•█▌▐███▪ ██
-      ▐█.▪ ▄█▀▄ ▐▀▀▄ ▐█▐█•▐▀▀▪▄▐█▐▐▌▐█· ▐█▌
-      ▐█▌·▐█▌.▐▌▐█•█▌ ███ ▐█▄▄▌██▐█▌██. ██
-      ▀▀▀  ▀█▄▀▪.▀  ▀. ▀   ▀▀▀ ▀▀ █▪▀▀▀▀▀•
+     The command-line interface to the Torvend framework.
 
-     A set of torrent vendor scrapers (by Stephen Bunn).
+     Usage:
+
+         torvend list           - (lists available spiders)
+         torvend search "query" - (uses spiders to search for torrents)
 
    Options:
-     --no-color     Disable pretty colors
-     -q, --quiet    Disable spinners
-     -v, --verbose  Enable verbose logging
-     --version      Show the version and exit.
-     -h, --help     Show this message and exit.
+     --color / --no-color  Enable pretty colors  [default: True]
+     -q, --quiet           Disable spinners
+     -v, --verbose         Enable verbose logging
+     --version             Show the version and exit.
+     -h, --help            Show this message and exit.
 
    Commands:
      list    Lists available spiders
@@ -95,7 +116,7 @@ Searching for Torrents
 You can search for torrents using the spiders through the ``search`` command.
 The most simple method of searching for torrents is to simply specify a query to the command.
 
-This will first search and display several torrents (sorted by most seeders) and prompt you to select which torrent's magnet link you want copy.
+This will first search and display several torrents (sorted by most seeders) and prompt you to select which torrent's magnet link you want open.
 
 .. code-block:: text
 
@@ -103,10 +124,45 @@ This will first search and display several torrents (sorted by most seeders) and
     0 ➜ 1234123412341234123412341234@thepiratebay My Query Torrent (1234, 1)
    ...
    [select torrent]: 0
-   copying magnet for My Query Torrent to clipboard ... ✔
+   opening magnet for My Query Torrent from thepiratebay ... ✔
 
 
-This will copy the discovered magnet link to your clipboard, ready to paste into your preferred client.
+This will open the selected magnet link in whatever bittorrent client on your machine is configured to handle magnet links.
+
+If instead you want to copy the magnet to your clipboard, simply pass the ``--copy`` flag to the search.
+
+.. code-block:: text
+
+   $ torvend search "my query" --copy
+    0 ➜ 1234123412341234123412341234@thepiratebay My Query Torrent (1234, 1)
+   ...
+   [select torrent]: 0
+   copying magnet for My Query Torrent from thepiratebay to clipboard ... ✔
+
+
+-------
+
+You can also select multiple torrents at the same time by passing a comma separated list of ranges you wish to select!
+
+.. code-block:: text
+
+   $ torvend search "my query"
+      0 ➜ 1234123412341234123412341234@thepiratebay My Query Torrent (1234, 1)
+      1 ➜ 1234123412341234123412341235@thepiratebay Another Torrent (1232, 1)
+      2 ➜ 1234123412341234123412341236@1337x Interesting Torrent (10, 1)
+      3 ➜ 1234123412341234123412341237@thepiratebay Some Other Torrent (8, 1)
+      4 ➜ 1234123412341234123412341238@torlock My Query Torrent (1, 0)
+   ...
+   [select torrent]: 0,2-4
+   opening magnet for My Query Torrent from thepiratebay ... ✔
+   opening magnet for Interesting Torrent from 1337x ... ✔
+   opening magnet for Some Other Torrent from thepiratebay ... ✔
+   opening magnet for My Query Torrent from torlock ... ✔
+
+When using the ``--copy`` flag, multiple selected magnets are joined by newlines before they are copied to the clipboard.
+
+
+-------
 
 If instead you want to pipe the magnet of the highest seeded torrent to ``stdout``, you can run this:
 
@@ -142,7 +198,7 @@ These options allow you to specify a list of spiders (*delimited by commas*) to 
 
 
 .. note:: Using both the ``--allowed`` and ``--ignored`` flags in the same command is **not** permitted.
-   This is because it doesn't make any sense to allow a certain subset of spiders to execute and ignore the others (*because the allowed subset implicitly ensures this*).
+   This is because it doesn't make any sense to **only** allow a certain subset of spiders to execute and ignore the others (*because the allowed subset implicitly ensures this*).
 
 ---
 
