@@ -226,6 +226,8 @@ class TorvendClient(meta.Loggable):
                 'Gecko/20100101 Firefox/39.0'
             ),
             'LOG_ENABLED': self.verbose,
+            'DNS_TIMEOUT': 5.0,
+            'DOWNLOAD_TIMEOUT': 5.0,
         }
         crawler_settings.update(self.settings)
         crawl_runner = scrapy.crawler.CrawlerRunner(crawler_settings)
