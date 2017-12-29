@@ -7,7 +7,7 @@ name = "pypi"
 
 [packages]
 
-scrapy = "*"
+Scrapy = "*"
 "beautifulsoup4" = "*"
 lxml = "*"
 requests = "*"
@@ -15,20 +15,21 @@ humanfriendly = "*"
 dateparser = "*"
 furl = "*"
 pygogo = "*"
-twisted = "*"
+Twisted = "*"
 click = "*"
 pyperclip = "*"
 colored = "*"
 yaspin = "*"
 "pypiwin32" = {version = "*", os_name = "== 'windows'"}
+sphinx-click = "*"
 
 
 [dev-packages]
 
 ptpython = "*"
 "flake8" = "*"
-sphinx = "*"
-cprofilev = "*"
+Sphinx = "*"
+CProfileV = "*"
 sphinx-click = "*"
 coverage = "*"
 pytest = "*"
